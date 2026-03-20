@@ -4,6 +4,8 @@
 
 Plural PLM gives food & beverage, CPG, chemical, paint, rubber, and polymer manufacturers a single system of record — from raw material to shelf. Formula management, stage-gate NPD, regulatory labeling, change control, and release management, all in one place.
 
+<img width="1709" height="889" alt="image" src="https://github.com/user-attachments/assets/99787e80-3a0b-4053-a851-3fb93155d8c4" />
+
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-22-green.svg)](https://nodejs.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://postgresql.org)
@@ -51,6 +53,9 @@ Attach parameter-based specification sheets (physico-chemical, nutritional, regu
 ### Enterprise Reporting
 Out-of-the-box reports: KPI dashboard, change aging, release readiness, NPD pipeline status, FG items missing formulas, items by lifecycle status. One-click CSV export.
 
+### Digital Twin of the Product with Traceability
+<img width="1446" height="606" alt="image" src="https://github.com/user-attachments/assets/16cdbf6f-b525-4564-9861-d7f1ed9915c4" />
+
 ---
 
 ## Architecture
@@ -84,7 +89,7 @@ Out-of-the-box reports: KPI dashboard, change aging, release readiness, NPD pipe
 
 ```bash
 # 1. Clone
-git clone https://github.com/pravincee/PluralPLM.git && cd PluralPLM
+git clone https://github.com/PraveenSampathPLM/PluralPLM.git && cd PluralPLM
 
 # 2. Configure (set POSTGRES_PASSWORD and JWT_SECRET)
 cp .env.production.example .env.production && nano .env.production
