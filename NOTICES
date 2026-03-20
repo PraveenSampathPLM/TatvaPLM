@@ -1,0 +1,108 @@
+Plural PLM — Third-Party Software Notices
+==========================================
+
+Plural PLM includes third-party open-source software components.
+This file lists those components and their licences. The licence
+texts are included below or available at the URLs shown.
+
+The Plural PLM Non-Commercial Licence applies only to the original
+code authored by Praveen Sampath. Each third-party component
+remains under its own licence, which is unaffected by the
+Plural PLM licence.
+
+──────────────────────────────────────────────────────────────────
+FRONTEND DEPENDENCIES (MIT Licence unless noted)
+──────────────────────────────────────────────────────────────────
+
+React                        MIT   https://github.com/facebook/react
+React DOM                    MIT   https://github.com/facebook/react
+React Router DOM             MIT   https://github.com/remix-run/react-router
+@tanstack/react-query        MIT   https://github.com/TanStack/query
+Zustand                      MIT   https://github.com/pmndrs/zustand
+Zod                          MIT   https://github.com/colinhacks/zod
+Axios                        MIT   https://github.com/axios/axios
+Sonner                       MIT   https://github.com/emilkowalski/sonner
+React Hook Form              MIT   https://github.com/react-hook-form/react-hook-form
+@hookform/resolvers          MIT   https://github.com/react-hook-form/resolvers
+Lucide React                 ISC   https://github.com/lucide-icons/lucide
+@radix-ui/react-slot         MIT   https://github.com/radix-ui/primitives
+clsx                         MIT   https://github.com/lukeed/clsx
+tailwind-merge               MIT   https://github.com/dcastil/tailwind-merge
+Tailwind CSS                 MIT   https://github.com/tailwindlabs/tailwindcss
+Vite                         MIT   https://github.com/vitejs/vite
+@vitejs/plugin-react         MIT   https://github.com/vitejs/vite-plugin-react
+TypeScript                   Apache-2.0  https://github.com/microsoft/TypeScript
+PostCSS                      MIT   https://github.com/postcss/postcss
+Autoprefixer                 MIT   https://github.com/postcss/autoprefixer
+cross-env                    MIT   https://github.com/kentcdodds/cross-env
+
+──────────────────────────────────────────────────────────────────
+BACKEND DEPENDENCIES (MIT Licence unless noted)
+──────────────────────────────────────────────────────────────────
+
+Express                      MIT   https://github.com/expressjs/express
+Prisma                       Apache-2.0  https://github.com/prisma/prisma
+@prisma/client               Apache-2.0  https://github.com/prisma/prisma
+bcryptjs                     MIT   https://github.com/dcodeIO/bcrypt.js
+jsonwebtoken                 MIT   https://github.com/auth0/node-jsonwebtoken
+cors                         MIT   https://github.com/expressjs/cors
+multer                       MIT   https://github.com/expressjs/multer
+pdfkit                       MIT   https://github.com/foliojs/pdfkit
+dotenv                       BSD-2-Clause  https://github.com/motdotla/dotenv
+Zod                          MIT   https://github.com/colinhacks/zod
+TypeScript                   Apache-2.0  https://github.com/microsoft/TypeScript
+tsx                          MIT   https://github.com/privatenumber/tsx
+cross-env                    MIT   https://github.com/kentcdodds/cross-env
+
+──────────────────────────────────────────────────────────────────
+INFRASTRUCTURE
+──────────────────────────────────────────────────────────────────
+
+PostgreSQL 16                PostgreSQL Licence (permissive)
+                             https://www.postgresql.org/about/licence/
+Redis 7                      BSD 3-Clause
+                             https://redis.io/legal/licenses/
+Nginx                        BSD 2-Clause
+                             https://nginx.org/LICENSE
+Docker                       Apache-2.0
+                             https://github.com/moby/moby/blob/master/LICENSE
+
+──────────────────────────────────────────────────────────────────
+MIT LICENCE TEXT (applies to all MIT-licenced packages above)
+──────────────────────────────────────────────────────────────────
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+──────────────────────────────────────────────────────────────────
+APACHE 2.0 LICENCE TEXT (applies to Prisma, TypeScript, Docker)
+──────────────────────────────────────────────────────────────────
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific
+language governing permissions and limitations under the License.

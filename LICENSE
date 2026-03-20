@@ -5,6 +5,17 @@ Copyright (c) 2026 Praveen Sampath. All rights reserved.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+SCOPE
+
+This licence applies to the original source code of Plural PLM
+authored by Praveen Sampath. Third-party open-source components
+included in or distributed with this software remain under their
+own respective licences (MIT, Apache 2.0, BSD, etc.) and are not
+restricted by this licence. See the NOTICES file for a full list
+of third-party components and their licence terms.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 GRANT OF LICENSE
 
 Permission is hereby granted, free of charge, to any person or
