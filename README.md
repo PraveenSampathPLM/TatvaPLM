@@ -225,4 +225,4 @@ make migrate       # create + apply a new Prisma migration
 
 ## License
 
-MIT — free to use, self-host, and modify.
+Non-Commercial — free for personal use, R&D, and academic research. A commercial license is required for production or revenue-generating use. See [LICENSE](LICENSE) for full terms.
