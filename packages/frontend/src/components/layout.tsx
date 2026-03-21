@@ -132,7 +132,7 @@ function IconFolder({ className }: { className?: string }): JSX.Element {
 
 const navGroups: NavGroup[] = [
   {
-    label: "Home",
+    label: "",
     items: [
       { to: "/", label: "Home", icon: IconHome },
       { to: "/search", label: "Advanced Search", icon: IconSearch },
@@ -327,8 +327,8 @@ export function AppLayout(): JSX.Element {
         <nav className="mt-8">
           {navGroups.map((group, groupIndex) => (
             <div key={group.label} className={groupIndex === 0 ? "" : "mt-6"}>
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{group.label}</p>
-              <div className="mt-2 space-y-1">
+              {group.label ? <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{group.label}</p> : null}
+              <div className={group.label ? "mt-2 space-y-1" : "space-y-1"}>
                 {group.items.map((item) => {
                   const active = isNavActive(item.to);
                   const Icon = item.icon;
