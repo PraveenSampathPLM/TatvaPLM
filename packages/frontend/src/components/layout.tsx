@@ -264,9 +264,6 @@ export function AppLayout(): JSX.Element {
   const unreadTasks = (tasks.data?.data ?? []).filter((task) => !readTaskIds.has(task.instanceId));
   const unreadCount = unreadTasks.length;
   const breadcrumbs = useMemo(() => {
-    if (location.pathname === "/") {
-      return [];
-    }
     const segments = location.pathname.split("/").filter(Boolean);
     const crumbs: Array<{ to: string; label: string }> = [{ to: "/", label: "Home" }];
     let acc = "";
