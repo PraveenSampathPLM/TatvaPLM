@@ -358,8 +358,8 @@ export function AppLayout(): JSX.Element {
       </aside>
 
       <main className="pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 backdrop-blur">
-          <div className="flex flex-col gap-1">
+        <header className="sticky top-0 z-20 flex min-h-[4.5rem] items-center justify-between border-b border-slate-200/80 bg-white/95 px-8 py-3 backdrop-blur">
+          <div className="flex flex-col gap-2">
             <Link to="/" className="inline-flex w-fit">
               <TatvaLogo />
             </Link>
@@ -381,9 +381,7 @@ export function AppLayout(): JSX.Element {
                   );
                 })}
               </nav>
-            ) : (
-              <p className="text-xs text-slate-500">Home</p>
-            )}
+            ) : null}
           </div>
           <div className="flex items-center gap-3">
             <select
