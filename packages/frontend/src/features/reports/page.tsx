@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  type LucideIcon,
+  BarChart3, GitCompare, Rocket, FlaskConical, AlertTriangle,
+  Package, PackageCheck, Palette
+} from "lucide-react";
 import { api } from "@/lib/api";
 import { useContainerStore } from "@/store/container.store";
 import { StatusBadge } from "@/components/status-badge";
@@ -79,18 +84,18 @@ type ReportId =
 interface ReportMeta {
   id: ReportId;
   label: string;
-  icon: string;
+  icon: LucideIcon;
   category: string;
   exportable: boolean;
 }
 
 const REPORTS: ReportMeta[] = [
-  { id: "kpi-overview", label: "KPI Overview", icon: "📊", category: "Overview", exportable: false },
-  { id: "change-aging", label: "Change Aging", icon: "🔄", category: "Change Management", exportable: true },
-  { id: "release-readiness", label: "Release Readiness", icon: "🚀", category: "Release Management", exportable: true },
-  { id: "npd-status", label: "NPD Status", icon: "🧪", category: "NPD", exportable: true },
-  { id: "fg-missing-formula", label: "FG Missing Formula", icon: "⚠️", category: "Formulation", exportable: true },
-  { id: "items-by-status", label: "Items by Status", icon: "📦", category: "Inventory", exportable: true },
+  { id: "kpi-overview",       label: "KPI Overview",        icon: BarChart3,      category: "Overview",          exportable: false },
+  { id: "change-aging",       label: "Change Aging",        icon: GitCompare,     category: "Change Management", exportable: true  },
+  { id: "release-readiness",  label: "Release Readiness",   icon: Rocket,         category: "Release Management",exportable: true  },
+  { id: "npd-status",         label: "NPD Status",          icon: FlaskConical,   category: "NPD",               exportable: true  },
+  { id: "fg-missing-formula", label: "FG Missing Formula",  icon: AlertTriangle,  category: "Formulation",       exportable: true  },
+  { id: "items-by-status",    label: "Items by Status",     icon: Package,        category: "Inventory",         exportable: true  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -235,68 +240,20 @@ function ExportButton({
 interface KpiCardConfig {
   key: keyof KpiData;
   label: string;
-  icon: string;
+  icon: LucideIcon;
   threshold: (v: number) => "green" | "amber" | "red";
   description: string;
 }
 
 const KPI_CARDS: KpiCardConfig[] = [
-  {
-    key: "totalItems",
-    label: "Total Items",
-    icon: "📦",
-    threshold: () => "green",
-    description: "All items in the system",
-  },
-  {
-    key: "releasedItems",
-    label: "Released Items",
-    icon: "✅",
-    threshold: () => "green",
-    description: "Items in RELEASED status",
-  },
-  {
-    key: "openChanges",
-    label: "Open Changes",
-    icon: "🔄",
-    threshold: (v) => (v === 0 ? "green" : v < 10 ? "amber" : "red"),
-    description: "Change requests not yet implemented",
-  },
-  {
-    key: "openReleases",
-    label: "Open Releases",
-    icon: "🚀",
-    threshold: (v) => (v === 0 ? "green" : v < 5 ? "amber" : "red"),
-    description: "Release requests not yet completed",
-  },
-  {
-    key: "activeNpdProjects",
-    label: "Active NPD Projects",
-    icon: "🧪",
-    threshold: () => "green",
-    description: "NPD projects currently in ACTIVE status",
-  },
-  {
-    key: "overdueNpdProjects",
-    label: "Overdue NPD Projects",
-    icon: "⚠️",
-    threshold: (v) => (v === 0 ? "green" : v < 3 ? "amber" : "red"),
-    description: "Active projects past target launch date",
-  },
-  {
-    key: "formulasDraft",
-    label: "Formulas In Work",
-    icon: "🧬",
-    threshold: (v) => (v === 0 ? "green" : v < 5 ? "amber" : "red"),
-    description: "Formulas currently in IN_WORK status",
-  },
-  {
-    key: "artworksPendingReview",
-    label: "Artworks Pending Review",
-    icon: "🎨",
-    threshold: (v) => (v === 0 ? "green" : v < 5 ? "amber" : "red"),
-    description: "Artworks awaiting review/approval",
-  },
+  { key: "totalItems",            label: "Total Items",             icon: Package,      threshold: () => "green",                                        description: "All items in the system"                    },
+  { key: "releasedItems",         label: "Released Items",          icon: PackageCheck, threshold: () => "green",                                        description: "Items in RELEASED status"                   },
+  { key: "openChanges",           label: "Open Changes",            icon: GitCompare,   threshold: (v) => (v === 0 ? "green" : v < 10 ? "amber" : "red"), description: "Change requests not yet implemented"         },
+  { key: "openReleases",          label: "Open Releases",           icon: Rocket,       threshold: (v) => (v === 0 ? "green" : v < 5  ? "amber" : "red"), description: "Release requests not yet completed"          },
+  { key: "activeNpdProjects",     label: "Active NPD Projects",     icon: FlaskConical, threshold: () => "green",                                        description: "NPD projects currently in ACTIVE status"    },
+  { key: "overdueNpdProjects",    label: "Overdue NPD Projects",    icon: AlertTriangle,threshold: (v) => (v === 0 ? "green" : v < 3  ? "amber" : "red"), description: "Active projects past target launch date"     },
+  { key: "formulasDraft",         label: "Formulas In Work",        icon: FlaskConical, threshold: (v) => (v === 0 ? "green" : v < 5  ? "amber" : "red"), description: "Formulas currently in IN_WORK status"        },
+  { key: "artworksPendingReview", label: "Artworks Pending Review", icon: Palette,      threshold: (v) => (v === 0 ? "green" : v < 5  ? "amber" : "red"), description: "Artworks awaiting review/approval"           },
 ];
 
 const kpiColorMap = {
@@ -353,7 +310,7 @@ function KpiOverview({ containerId }: { containerId: string }): JSX.Element {
             title={card.description}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xl">{card.icon}</span>
+              <card.icon size={18} strokeWidth={1.7} className="text-slate-500" />
               <span className={`text-3xl font-bold tabular-nums ${kpiValueColorMap[tone]}`}>
                 {value.toLocaleString()}
               </span>
@@ -720,7 +677,7 @@ function FgMissingFormulaReport({ containerId }: { containerId: string }): JSX.E
     <div className="space-y-4">
       {!query.isLoading && rows.length > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <span className="text-lg">⚠️</span>
+          <AlertTriangle size={16} strokeWidth={2} className="shrink-0 text-amber-600" />
           <span>
             <strong>{rows.length}</strong> finished goods have no linked FG structure. Action is
             required to associate a formula.
@@ -944,7 +901,7 @@ export function ReportsPage(): JSX.Element {
                         : "text-slate-600 hover:bg-slate-100"
                     }`}
                   >
-                    <span className="text-base">{report.icon}</span>
+                    <report.icon size={15} strokeWidth={1.7} className="shrink-0 text-slate-500" />
                     <span className="leading-snug">{report.label}</span>
                   </button>
                 ))}
@@ -959,7 +916,7 @@ export function ReportsPage(): JSX.Element {
         <div className="mb-5 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">{current.icon}</span>
+              <current.icon size={20} strokeWidth={1.7} className="text-slate-600" />
               <h2 className="font-heading text-xl font-semibold text-slate-900">
                 {current.label}
               </h2>

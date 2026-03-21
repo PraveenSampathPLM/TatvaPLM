@@ -6,7 +6,7 @@ export type FlowStep = { label: string; desc: string };
 export interface ModuleGuide {
   id: string;
   label: string;
-  icon: string; // emoji used as icon
+  icon: string; // lucide icon name
   tagline: string;
   overview: string[];
   concepts: Concept[];
@@ -22,7 +22,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "home",
     label: "Home",
-    icon: "🏠",
+    icon: "Home",
     tagline: "Real-time KPIs across your entire PLM portfolio",
     image: "help-dashboard.png",
     overview: [
@@ -73,7 +73,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "items",
     label: "Items",
-    icon: "📦",
+    icon: "Package",
     tagline: "The master registry for every material in your product portfolio",
     image: "help-materials-list.png",
     overview: [
@@ -148,7 +148,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "formulas",
     label: "Formulas",
-    icon: "⚗️",
+    icon: "FlaskConical",
     tagline: "Build, version, and release multi-level product recipes",
     image: "help-formulation-list.png",
     overview: [
@@ -221,7 +221,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "fg",
     label: "FG Structures",
-    icon: "🏗️",
+    icon: "Layers",
     tagline: "Bill of Materials linking finished goods to formula and packaging",
     image: "help-bom-list.png",
     overview: [
@@ -271,7 +271,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "npd",
     label: "NPD Projects",
-    icon: "🚀",
+    icon: "Rocket",
     tagline: "Stage-gate pipeline to manage new product development end-to-end",
     image: "help-dashboard.png",
     overview: [
@@ -333,7 +333,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "changes",
     label: "Changes",
-    icon: "🔄",
+    icon: "GitCompare",
     tagline: "Structured change control with full impact analysis and multi-role sign-offs",
     image: "help-changes.png",
     overview: [
@@ -397,7 +397,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "releases",
     label: "Releases",
-    icon: "✅",
+    icon: "PackageCheck",
     tagline: "Bundle and approve new items and formulas for commercial use",
     image: "help-releases.png",
     overview: [
@@ -447,7 +447,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "labeling",
     label: "Labeling",
-    icon: "🏷️",
+    icon: "Tag",
     tagline: "Auto-generate regulatory-compliant ingredient declarations from your formula tree",
     image: "help-labeling.png",
     overview: [
@@ -509,7 +509,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "artworks",
     label: "Artworks",
-    icon: "🎨",
+    icon: "Palette",
     tagline: "Manage packaging artwork, proofing cycles, and compliance sign-off",
     image: "help-artworks.png",
     overview: [
@@ -572,7 +572,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "documents",
     label: "Documents",
-    icon: "📄",
+    icon: "FileText",
     tagline: "Centralised document library with version control and object links",
     image: "help-documents.png",
     overview: [
@@ -620,7 +620,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "specifications",
     label: "Specifications",
-    icon: "📐",
+    icon: "SlidersHorizontal",
     tagline: "Configure quality attribute templates used across items and formulas",
     image: "help-specifications.png",
     overview: [
@@ -667,7 +667,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "tasks",
     label: "My Tasks",
-    icon: "✔️",
+    icon: "CheckSquare",
     tagline: "Your personalised inbox for all workflow approvals and action items",
     image: "help-tasks.png",
     overview: [
@@ -717,7 +717,7 @@ export const MODULE_GUIDES: ModuleGuide[] = [
   {
     id: "configuration",
     label: "Configuration",
-    icon: "⚙️",
+    icon: "Settings",
     tagline: "System-wide settings for numbering, UOM, workflows, and integrations",
     image: "help-configuration.png",
     overview: [

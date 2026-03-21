@@ -1,6 +1,28 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  type LucideIcon,
+  Home, Package, FlaskConical, Layers, Rocket, GitCompare,
+  PackageCheck, Tag, Palette, FileText, SlidersHorizontal,
+  CheckSquare, Settings, BookOpen,
+  Lightbulb, AlertTriangle, Info, Play, Search,
+  HelpCircle, ChevronDown
+} from "lucide-react";
 import { useAppTour } from "@/features/tour/use-app-tour";
 import { MODULE_GUIDES, type ModuleGuide } from "./guides";
+
+/* ──────────────────────────────────────────────────────────────
+   Icon lookup map (Lucide name → component)
+────────────────────────────────────────────────────────────── */
+const LUCIDE_MAP: Record<string, LucideIcon> = {
+  Home, Package, FlaskConical, Layers, Rocket, GitCompare,
+  PackageCheck, Tag, Palette, FileText, SlidersHorizontal,
+  CheckSquare, Settings, BookOpen, BarChart3,
+};
+
+function GuideIcon({ name, size = 16, className }: { name: string; size?: number; className?: string }) {
+  const Icon = LUCIDE_MAP[name] ?? HelpCircle;
+  return <Icon size={size} strokeWidth={1.7} className={className} />;
+}
 
 /* ──────────────────────────────────────────────────────────────
    Image loader
@@ -17,14 +39,14 @@ const helpImageMap = Object.entries(imageModules).reduce<Record<string, string>>
 ────────────────────────────────────────────────────────────── */
 function Callout({ type, text }: { type: "tip" | "warning" | "note"; text: string }) {
   const config = {
-    tip:     { bg: "bg-emerald-50",  border: "border-emerald-200", icon: "💡", label: "Tip",     text: "text-emerald-800" },
-    warning: { bg: "bg-amber-50",    border: "border-amber-200",   icon: "⚠️", label: "Warning", text: "text-amber-800"   },
-    note:    { bg: "bg-blue-50",     border: "border-blue-200",    icon: "ℹ️", label: "Note",    text: "text-blue-800"    },
+    tip:     { bg: "bg-emerald-50",  border: "border-emerald-200", Icon: Lightbulb,     label: "Tip",     textCls: "text-emerald-800", iconCls: "text-emerald-600" },
+    warning: { bg: "bg-amber-50",    border: "border-amber-200",   Icon: AlertTriangle, label: "Warning", textCls: "text-amber-800",   iconCls: "text-amber-600"   },
+    note:    { bg: "bg-blue-50",     border: "border-blue-200",    Icon: Info,          label: "Note",    textCls: "text-blue-800",    iconCls: "text-blue-500"    },
   }[type];
   return (
     <div className={`flex gap-3 rounded-lg border ${config.border} ${config.bg} px-4 py-3`}>
-      <span className="mt-0.5 shrink-0 text-base leading-none">{config.icon}</span>
-      <p className={`text-sm leading-relaxed ${config.text}`}>
+      <config.Icon size={15} strokeWidth={2} className={`mt-0.5 shrink-0 ${config.iconCls}`} />
+      <p className={`text-sm leading-relaxed ${config.textCls}`}>
         <span className="font-semibold">{config.label}: </span>{text}
       </p>
     </div>
@@ -76,7 +98,9 @@ function GuideContent({ guide, onZoom }: { guide: ModuleGuide; onZoom: (p: { tit
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <span className="text-3xl leading-none">{guide.icon}</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <GuideIcon name={guide.icon} size={22} className="text-primary" />
+              </div>
               <div>
                 <h1 className="font-heading text-2xl font-bold text-slate-900">{guide.label}</h1>
                 <p className="mt-0.5 text-sm text-slate-500">{guide.tagline}</p>
@@ -141,7 +165,7 @@ function GuideContent({ guide, onZoom }: { guide: ModuleGuide; onZoom: (p: { tit
           {guide.howTo.map((section) => (
             <div key={section.title}>
               <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">▶</span>
+                <Play size={12} strokeWidth={2} className="text-primary" />
                 {section.title}
               </h3>
               <ol className="mt-2 space-y-2 pl-7">
@@ -191,11 +215,7 @@ function FaqRow({ q, a }: { q: string; a: string }) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <span className="text-sm font-medium text-slate-800">{q}</span>
-        <span className={`mt-0.5 shrink-0 text-slate-400 transition ${open ? "rotate-180" : ""}`}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </span>
+        <ChevronDown size={15} strokeWidth={2} className={`mt-0.5 shrink-0 text-slate-400 transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && <p className="mt-2 text-sm leading-relaxed text-slate-600">{a}</p>}
     </div>
@@ -210,7 +230,9 @@ function GettingStartedContent() {
     <article className="space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <span className="text-3xl leading-none">👋</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+              <BookOpen size={22} strokeWidth={1.7} className="text-primary" />
+            </div>
           <div>
             <h1 className="font-heading text-2xl font-bold text-slate-900">Getting Started with Tatva</h1>
             <p className="mt-0.5 text-sm text-slate-500">Your end-to-end Product Lifecycle Management platform</p>
@@ -256,7 +278,10 @@ function GettingStartedContent() {
       </div>
 
       <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5">
-        <p className="text-sm font-semibold text-amber-800">💡 Pro tip — follow this order for a new product</p>
+        <div className="flex items-center gap-2">
+          <Lightbulb size={15} strokeWidth={2} className="text-amber-600" />
+          <p className="text-sm font-semibold text-amber-800">Pro tip — follow this order for a new product</p>
+        </div>
         <ol className="mt-2 space-y-1 pl-4 text-sm text-amber-700 list-decimal">
           <li>Create all RM items and set their allergen flags in Specifications.</li>
           <li>Build the Formula recipe with ingredient percentages.</li>
@@ -277,7 +302,7 @@ function GettingStartedContent() {
 const NAV_GROUPS = [
   {
     label: "Start Here",
-    items: [{ id: "getting-started", label: "Getting Started", icon: "👋" }],
+    items: [{ id: "getting-started", label: "Getting Started", icon: "BookOpen" }],
   },
   {
     label: "Core Modules",
@@ -341,7 +366,7 @@ export function HelpCenterPage(): JSX.Element {
             onClick={startTour}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 transition"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <HelpCircle size={14} strokeWidth={2} />
             Take a Guided Tour
           </button>
         </div>
@@ -349,7 +374,7 @@ export function HelpCenterPage(): JSX.Element {
         {/* Search */}
         <div className="px-3 py-2 border-b border-slate-100">
           <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-slate-400" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <Search size={13} strokeWidth={2} className="shrink-0 text-slate-400" />
             <input
               type="search"
               placeholder="Search guides…"
@@ -379,7 +404,7 @@ export function HelpCenterPage(): JSX.Element {
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }`}
                     >
-                      <span className="text-base leading-none">{item.icon}</span>
+                      <GuideIcon name={item.icon} size={15} className={active ? "text-primary" : "text-slate-400"} />
                       <span className="truncate">{item.label}</span>
                     </button>
                   );
