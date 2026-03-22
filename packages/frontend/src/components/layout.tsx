@@ -132,6 +132,16 @@ function IconFolder({ className }: { className?: string }): JSX.Element {
   );
 }
 
+function IconInfo({ className }: { className?: string }): JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M12 11v6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="currentColor" strokeWidth="0.5" />
+    </svg>
+  );
+}
+
 function IconPlug({ className }: { className?: string }): JSX.Element {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
@@ -192,7 +202,8 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/integrations", label: "ERP Integrations", icon: IconPlug },
       { to: "/containers", label: "Containers", icon: IconFolder },
-      { to: "/configuration", label: "Configuration", icon: IconSettings }
+      { to: "/configuration", label: "Configuration", icon: IconSettings },
+      { to: "/about", label: "About Tatva", icon: IconInfo }
     ]
   }
 ];
@@ -223,7 +234,8 @@ const breadcrumbLabelMap: Record<string, string> = {
   "server-stats": "Server Stats",
   workflows: "Workflows",
   help: "Help Center",
-  npd: "NPD Projects"
+  npd: "NPD Projects",
+  about: "About Tatva"
 };
 
 const breadcrumbDetailPrefixMap: Record<string, string> = {

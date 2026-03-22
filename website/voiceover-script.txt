@@ -1,0 +1,226 @@
+================================================================================
+TATVA — ENTERPRISE PLM FOR PROCESS INDUSTRIES
+90-SECOND MARKETING VIDEO VOICEOVER SCRIPT
+================================================================================
+Version: 1.0
+Duration: 90 seconds
+Target Audience: VP of R&D, Head of Regulatory Affairs, CTO, COO at food &
+  beverage, CPG, chemical, polymer, paint, and rubber manufacturers.
+Tone: Warm, confident, forward-leaning — Apple Keynote meets Salesforce Dreamforce.
+  No hyperbole. No filler. Every word earns its place.
+
+================================================================================
+SUGGESTED AI VOICE (ElevenLabs)
+================================================================================
+Voice: "Adam" (deep, warm, authoritative American male)
+  OR:  "Josh" (upbeat, clear, slightly younger energy — good for SaaS demos)
+Stability: 0.55
+Clarity + Similarity: 0.80
+Style Exaggeration: 0.15
+Speaking Rate: Slightly slower than default (-5 to -10%)
+  Rationale: Give each line room to breathe; this is cinematic, not a radio ad.
+
+Alternative: ElevenLabs "Daniel" (British-ish neutral, also works well for
+  enterprise SaaS if the target market skews international).
+
+================================================================================
+BACKGROUND MUSIC
+================================================================================
+Track Style: Cinematic, building electronic/orchestral hybrid
+  Think: Hans Zimmer "Time" (Inception) energy, but shorter and more modern.
+  OR: Something in the style of "Interstellar" ambient beds with a hopeful
+  uplift in the final 15 seconds.
+Suggested Sources:
+  - Artlist.io: search "cinematic corporate uplift"
+  - Epidemic Sound: "Confident Horizon" or "Tech Forward" playlists
+  - Musicbed: search "Apple ad documentary"
+Volume Mix: Music at 15-20% under voiceover; swell to 40% during the visual-only
+  "TATVA" title reveal at ~00:75.
+
+================================================================================
+FULL NARRATION SCRIPT WITH TIMING MARKERS
+================================================================================
+
+[00:00] — SCENE 1: THE PROBLEM (Cold Open)
+──────────────────────────────────────────
+[DELIVERY: Slow. Deliberate. Each sentence a beat of its own. No rush.]
+
+"Every great product starts with an idea."
+
+[00:04]
+"But between that idea... and the shelf..."
+
+[00:07]
+"...lies a thousand decisions."
+
+[00:10]
+"Formulas revised. Labels approved. Regulations checked."
+[DELIVERY: Pick up pace slightly here — make it feel like a list that's
+ overwhelming, building pressure.]
+
+[00:13]
+"Suppliers confirmed. Batches tested. Changes tracked."
+
+[00:16]
+"For process manufacturers — in food, chemical, CPG, polymers, paint —"
+[DELIVERY: Measured, warm. You're naming their world. Make them feel seen.]
+
+"— the complexity is real."
+
+================================================================================
+
+[00:20] — SCENE 2: THE TURN / PRODUCT REVEAL
+─────────────────────────────────────────────
+[DELIVERY: Confident shift. This is the pivot. Energy lifts. Smile in the voice.]
+
+"Meet Tatva."
+
+[PAUSE: 1 full second of silence here — let the name land.]
+
+[00:23]
+"The Enterprise Product Lifecycle Management platform..."
+"...built specifically for process industries."
+
+[00:28]
+"From a single dashboard, your entire product world — in one place."
+[DELIVERY: Slightly slower on "in one place." Let it feel solid.]
+
+================================================================================
+
+[00:32] — SCENE 3: CONTROL TOWER / DASHBOARD
+─────────────────────────────────────────────
+[DELIVERY: Vivid, specific. Like you're walking someone through a beautiful
+ physical space.]
+
+"The Control Tower gives your team — R&D, Quality, Regulatory, Operations —"
+"a real-time view of every product, every project, every bottleneck."
+
+[00:40]
+"No more chasing emails. No more version confusion."
+[DELIVERY: Slight pause after "emails" — let that land with the audience.]
+
+================================================================================
+
+[00:43] — SCENE 4: FORMULA MANAGEMENT
+───────────────────────────────────────
+[DELIVERY: Precise, technical-but-warm. This audience loves the specifics.]
+
+"Formula Management handles your recipes, your BOMs, your raw material specs —"
+
+[00:48]
+"with full version history, approval workflows, and ingredient-level traceability."
+
+[00:52]
+"Change an ingredient — Tatva tracks every downstream impact. Automatically."
+[DELIVERY: "Automatically." — land this word. Brief pause before and after it.
+ It's the magic word for this audience.]
+
+================================================================================
+
+[00:56] — SCENE 5: NPD + STAGE-GATE + CHANGE CONTROL
+──────────────────────────────────────────────────────
+[DELIVERY: Energetic, fast-forward feeling. Like a montage.]
+
+"New product development with built-in Stage-Gate process."
+
+[01:00]
+"Change Control that keeps every modification auditable and compliant."
+
+[01:04]
+"Regulatory Labeling — FDA, FSSAI, GHS — generated and approved inside the platform."
+[DELIVERY: Say each standard as a distinct word. Your audience recognizes
+ these acronyms and they matter.]
+
+================================================================================
+
+[01:09] — SCENE 6: ERP INTEGRATION
+────────────────────────────────────
+[DELIVERY: Reassuring. This is the "we play well with others" moment.]
+
+"And Tatva connects to the systems you already rely on."
+"SAP. Oracle. Microsoft Dynamics 365."
+
+[01:14]
+"No rip-and-replace. Just seamless integration."
+[DELIVERY: "No rip-and-replace" — slight smile in the voice. This phrase
+ is a relief to enterprise buyers. Let them feel it.]
+
+================================================================================
+
+[01:17] — SCENE 7: DEPLOYMENT / SPEED
+───────────────────────────────────────
+[DELIVERY: Conversational, almost playful — this is the surprising stat.]
+
+"Self-hosted. Docker-based. And ready to deploy in under ten minutes."
+[DELIVERY: "Under ten minutes" — let that hang in the air for a beat.
+ Raise the energy slightly here.]
+
+[01:23]
+"Your data stays in your infrastructure. Always."
+[DELIVERY: "Always." — firm, reassuring. One word. Own it.]
+
+================================================================================
+
+[01:26] — SCENE 8: MADE IN INDIA FOR THE WORLD
+────────────────────────────────────────────────
+[DELIVERY: Proud. Warm. Global. Not nationalistic — aspirational.]
+
+"Built by a world-class engineering team."
+"Made in India — for the world."
+
+================================================================================
+
+[01:31] — SCENE 9: CLOSING / CALL TO ACTION
+─────────────────────────────────────────────
+[DELIVERY: Peak confidence. This is the Apple-style close. Measured, iconic.]
+
+"Your products deserve more than spreadsheets and silos."
+
+[01:35]
+"They deserve Tatva."
+
+[PAUSE: 1.5 seconds. Let the music swell.]
+
+[01:38]
+"tatva.io — get started today."
+[DELIVERY: URL delivered cleanly, not rushed. "Get started today" is warm
+ and inviting, not pressuring.]
+
+================================================================================
+END OF SCRIPT — Total runtime: ~90 seconds
+================================================================================
+
+================================================================================
+DIRECTOR / EDITOR NOTES
+================================================================================
+
+PACING:
+  - Scenes 1 through 2 are slow and cinematic. Let visuals breathe.
+  - Scenes 3 through 6 are the product deep-dive — pace is brisker, confident.
+  - Scenes 7 and 8 are punchy one-liners. Short. Sharp.
+  - Scene 9 is the close — pull back to contemplative pace, then a firm, clean
+    call to action.
+
+EMPHASIS WORDS (bold in recording sessions):
+  "Tatva" — always with weight and warmth; it's the brand name.
+  "automatically" — this word is gold for operations-focused buyers.
+  "under ten minutes" — surprising, memorable; inflect upward slightly.
+  "in one place" — resolution, relief; slow down here.
+  "always" (re: data) — firm and protective; enterprise buyers care about this.
+  "Made in India — for the world" — pride without chest-thumping.
+
+BREATH MARKS (suggested natural pauses beyond those noted above):
+  After "Meet Tatva." — 1 full second.
+  After "They deserve Tatva." — 1.5 seconds before URL.
+  After "No rip-and-replace." — half beat.
+
+RECORDING SETUP:
+  - Dry studio or treated room. No reverb on the voice.
+  - Ask the voice artist for 2-3 takes of the full script.
+  - Get isolated pickups of: "Meet Tatva.", "under ten minutes.",
+    "They deserve Tatva.", and "tatva.io — get started today."
+  - Pickups allow fine-tuning the edit without a full re-record.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

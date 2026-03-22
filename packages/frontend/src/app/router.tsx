@@ -43,6 +43,7 @@ import { NpdPage } from "@/features/npd/page";
 import { NpdDetailPage } from "@/features/npd/detail-page";
 import { IntegrationsPage } from "@/features/integrations/page";
 import { IntegrationDetailPage } from "@/features/integrations/detail";
+import { AboutPage } from "@/features/about/page";
 
 export const router = createBrowserRouter([
   {
@@ -101,7 +102,8 @@ export const router = createBrowserRouter([
       { path: "configuration/workflows", element: <ConfigurationWorkflowsPage /> },
       { path: "help", element: <HelpCenterPage /> },
       { path: "integrations", element: <IntegrationsPage /> },
-      { path: "integrations/:id", element: <IntegrationDetailPage /> }
+      { path: "integrations/:id", element: <IntegrationDetailPage /> },
+      { path: "about", element: <AboutPage /> }
     ]
   }
 ]);
