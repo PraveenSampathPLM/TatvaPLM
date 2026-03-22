@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tatva — Marketing Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white:   #FFFFFF;
+      --bg-alt:  #F5F5F7;
+      --text:    #1D1D1F;
+      --muted:   #6E6E73;
+      --border:  #D2D2D7;
+      --border2: #E8E8ED;
+      --accent:  #E8590C;
+      --font:    'Inter', -apple-system, sans-serif;
+    }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--white); font-family: var(--font); -webkit-font-smoothing: antialiased; color: var(--text); }
+
+    /* ── Stage ── */
+    #stage { width: 100%; height: 100vh; position: relative; overflow: hidden; }
+
+    /* ── Scene ── */
+    .scene {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 72px 80px 100px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.65s ease;
+    }
+    .scene.active { opacity: 1; pointer-events: all; }
+
+    /* Alternating section backgrounds */
+    .scene.bg-alt { background: var(--bg-alt); }
+    .scene.bg-dark { background: #1D1D1F; }
+
+    /* ── Animated elements ── */
+    .scene .el {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .scene.active .el { opacity: 1; transform: none; }
+    .scene.active .el:nth-child(1) { transition-delay: 0.1s; }
+    .scene.active .el:nth-child(2) { transition-delay: 0.22s; }
+    .scene.active .el:nth-child(3) { transition-delay: 0.34s; }
+    .scene.active .el:nth-child(4) { transition-delay: 0.46s; }
+    .scene.active .el:nth-child(5) { transition-delay: 0.58s; }
+    .scene.active .el:nth-child(6) { transition-delay: 0.70s; }
+
+    /* ── Typography ── */
+    .eyebrow {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 16px; display: block;
+    }
+    .headline {
+      font-size: clamp(36px, 4.5vw, 64px);
+      font-weight: 800; line-height: 1.08;
+      letter-spacing: -0.03em; color: var(--text);
+      text-align: center; margin-bottom: 16px;
+    }
+    .headline .hi { color: var(--accent); }
+    .headline-dark { color: #FFFFFF; }
+    .headline-dark .hi { color: #FF9933; }
+    .subline {
+      font-size: clamp(14px, 1.6vw, 18px);
+      color: var(--muted); font-weight: 400;
+      text-align: center; max-width: 600px;
+      line-height: 1.7; margin-bottom: 0;
+    }
+    .subline-dark { color: rgba(255,255,255,0.5); }
+
+    /* ── Logo ── */
+    .logo-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+    /* ── Screen frame ── */
+    .screen-wrap { width: 100%; max-width: 800px; }
+    .screen-chrome {
+      background: #E2E2E7; border-radius: 10px 10px 0 0;
+      padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .chrome-d { display: flex; gap: 5px; }
+    .chrome-d span { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .chrome-url {
+      flex: 1; height: 22px; border-radius: 5px;
+      background: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #888;
+    }
+    .screen-wrap img {
+      width: 100%; display: block;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+    }
+
+    /* ── Split layout ── */
+    .split {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 56px; align-items: center;
+      width: 100%; max-width: 1100px;
+    }
+    .text-side { text-align: left; }
+    .text-side .headline { text-align: left; font-size: clamp(28px, 3vw, 46px); }
+    .text-side .subline { text-align: left; font-size: 14px; margin-bottom: 18px; }
+    .text-side .eyebrow { margin-bottom: 10px; }
+    .feat-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .feat-list li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--muted); line-height: 1.5;
+    }
+    .feat-list li::before {
+      content: ''; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E8590C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
+
+    /* ── Problem pills ── */
+    .pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
+    .pill {
+      padding: 8px 18px; border-radius: 980px;
+      border: 1.5px solid var(--border);
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      background: var(--white);
+    }
+
+    /* ── Stats row ── */
+    .stats-row { display: flex; gap: 40px; margin-top: 32px; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 36px; font-weight: 800; letter-spacing: -0.04em; color: var(--text); margin-bottom: 4px; }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ── India flag bar ── */
+    .india-flag { height: 4px; width: 80px; border-radius: 2px; background: linear-gradient(90deg, #FF9933 33%, #ffffff 33% 66%, #138808 66%); margin: 0 auto 20px; }
+    .india-flag.left { margin: 0 0 20px; }
+
+    /* ── CTA buttons ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 700;
+      padding: 13px 28px; border-radius: 980px;
+    }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1.5px solid var(--border); color: var(--text);
+      font-size: 14px; font-weight: 600;
+      padding: 12px 22px; border-radius: 980px;
+      font-family: monospace; font-size: 13px;
+    }
+
+    /* ── Controls ── */
+    #controls {
+      position: fixed; top: 18px; right: 22px; z-index: 200;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ctrl-btn {
+      background: rgba(0,0,0,0.07); border: 1px solid rgba(0,0,0,0.1);
+      color: var(--muted); font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 980px; cursor: pointer;
+      font-family: var(--font); transition: background 0.2s;
+    }
+    .ctrl-btn:hover { background: rgba(0,0,0,0.12); }
+    .ctrl-btn.dark { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+    .ctrl-btn.dark:hover { background: rgba(255,255,255,0.18); }
+
+    /* ── Counter ── */
+    #counter {
+      position: fixed; top: 22px; left: 22px; z-index: 200;
+      font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.06em;
+    }
+
+    /* ── Progress ── */
+    #progress { position: fixed; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border2); z-index: 100; }
+    #progress-fill { height: 100%; background: var(--accent); width: 0%; }
+
+    /* ── Subtitle / VO ── */
+    #subtitle {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 200; max-width: 700px; width: 90%;
+      text-align: center; font-size: 13px; color: var(--muted); line-height: 1.5;
+    }
+
+    /* ── Dots ── */
+    #dots { position: fixed; bottom: 52px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; gap: 6px; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background 0.2s, transform 0.2s; }
+    .dot.active { background: var(--accent); transform: scale(1.4); }
+
+    /* ── Replay ── */
+    #replay { display: none; position: fixed; inset: 0; z-index: 300; background: var(--white); flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    #replay.show { display: flex; }
+    #replay h2 { font-size: 24px; font-weight: 700; color: var(--text); }
+    #replay p { font-size: 14px; color: var(--muted); }
+    #replay-btn { background: var(--accent); color: #fff; font-size: 14px; font-weight: 600; padding: 11px 28px; border-radius: 980px; border: none; cursor: pointer; font-family: var(--font); margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ── S1: Logo title card (white) ── -->
+  <div class="scene" data-duration="7000" data-subtitle="Introducing Tatva — the enterprise product lifecycle management platform purpose-built for process industries.">
+    <div class="logo-wrap el">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="380" height="85" fill="none">
+        <circle cx="36" cy="36" r="26" stroke="#E2E8F0" stroke-width="1.5"/>
+        <circle cx="36" cy="10" r="7" fill="#FF9933"/>
+        <circle cx="58.5" cy="49" r="7" fill="#138808"/>
+        <circle cx="13.5" cy="49" r="7" fill="#1A237E"/>
+        <circle cx="36" cy="36" r="5" fill="#1A237E"/>
+        <circle cx="36" cy="36" r="2.5" fill="white"/>
+        <text x="82" y="30" font-family="'Inter','Arial',sans-serif" font-size="28" font-weight="900" letter-spacing="6" fill="#1D1D1F">TATVA</text>
+        <text x="83" y="51" font-family="'Inter','Arial',sans-serif" font-size="11" font-weight="400" letter-spacing="2.5" fill="#6E6E73">PRODUCT LIFECYCLE MANAGEMENT</text>
+        <line x1="83" y1="57" x2="310" y2="57" stroke="#D2D2D7" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="el" style="margin-top:28px">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center">
+        <span style="font-size:12px;color:#B0B0B8;letter-spacing:0.07em;text-transform:uppercase">Food &amp; Beverage</span>
+        <span style="color:#D2D2D7">·</span>
+        <span style="font-size:12px;color:#B0B0B8;letter-spacing:0.07em;text-transform:uppercase">Chemical</span>
+        <span style="color:#D2D2D7">·</span>
+        <span style="font-size:12px;color:#B0B0B8;letter-spacing:0.07em;text-transform:uppercase">Polymer</span>
+        <span style="color:#D2D2D7">·</span>
+        <span style="font-size:12px;color:#B0B0B8;letter-spacing:0.07em;text-transform:uppercase">CPG</span>
+        <span style="color:#D2D2D7">·</span>
+        <span style="font-size:12px;color:#B0B0B8;letter-spacing:0.07em;text-transform:uppercase">Paint &amp; Rubber</span>
+      </div>
+    </div>
+    <div class="el" style="margin-top:40px">
+      <div style="display:flex;gap:32px">
+        <div style="text-align:center"><div style="font-size:28px;font-weight:800;letter-spacing:-0.04em;color:#1D1D1F">10+</div><div style="font-size:11px;color:#B0B0B8;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">Modules</div></div>
+        <div style="width:1px;background:#E8E8ED"></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:800;letter-spacing:-0.04em;color:#1D1D1F">6</div><div style="font-size:11px;color:#B0B0B8;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">ERP Connectors</div></div>
+        <div style="width:1px;background:#E8E8ED"></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:800;letter-spacing:-0.04em;color:#E8590C">&lt;10min</div><div style="font-size:11px;color:#B0B0B8;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">To Production</div></div>
+        <div style="width:1px;background:#E8E8ED"></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:800;letter-spacing:-0.04em;color:#1D1D1F">$0</div><div style="font-size:11px;color:#B0B0B8;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">SaaS Fees</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S2: Problem (alt bg) ── -->
+  <div class="scene bg-alt" data-duration="8000" data-subtitle="Process manufacturers run on formulas, not drawings. Yet most PLM tools are built for mechanical engineers — not for you.">
+    <div class="el eyebrow">The Problem</div>
+    <div class="el headline">Great products.<br><span class="hi">Brutal complexity.</span></div>
+    <div class="el subline">Your formulas are in Excel. Your changes are lost in email. Your labels are done by hand. Your ERP project never ships.</div>
+    <div class="el pills">
+      <div class="pill">📊 Formulas in spreadsheets</div>
+      <div class="pill">📧 Changes lost in email</div>
+      <div class="pill">📋 Labels produced manually</div>
+      <div class="pill">🗂️ No NPD visibility</div>
+      <div class="pill">⏳ ERP takes 12+ months</div>
+    </div>
+  </div>
+
+  <!-- ── S3: Dashboard (white) ── -->
+  <div class="scene" data-duration="9000" data-subtitle="Tatva's Control Tower gives you a real-time overview of your entire portfolio — open changes, active formulas, releases, and your NPD pipeline, all in one place.">
+    <div class="split el">
+      <div class="text-side">
+        <span class="eyebrow">Control Tower</span>
+        <div class="headline">Your entire portfolio.<br><span class="hi">Live.</span></div>
+        <div class="subline">One dashboard. Every product, project, and bottleneck visible to R&amp;D, Quality, Regulatory, and Operations at once.</div>
+        <ul class="feat-list">
+          <li>Real-time KPIs across all modules</li>
+          <li>Open changes, active formulas, release status</li>
+          <li>NPD pipeline and gate review status</li>
+          <li>Trend charts with 8-week lookback</li>
+        </ul>
+      </div>
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com — Control Tower</div>
+          </div>
+          <img src="screenshots/dashboard.png" alt="Dashboard"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S4: Formula (alt bg) ── -->
+  <div class="scene bg-alt" data-duration="9000" data-subtitle="Build multi-level formulas with precision. Every revision versioned, every approval tracked. From raw material to finished good — nothing lost in a spreadsheet again.">
+    <div class="split el">
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com/formulas/FML-0024</div>
+          </div>
+          <img src="screenshots/formula-detail.png" alt="Formula Detail"/>
+        </div>
+      </div>
+      <div class="text-side">
+        <span class="eyebrow">Formula Management</span>
+        <div class="headline">Your recipe is your<br><span class="hi">competitive edge.</span></div>
+        <div class="subline">Versioned formula builder with multi-level ingredients, weight %, linked BOMs, and multi-role approval workflows.</div>
+        <ul class="feat-list">
+          <li>Multi-level formula tree with weight %</li>
+          <li>Full version history and audit trail</li>
+          <li>Linked BOMs and processing instructions</li>
+          <li>One-click batch scaling</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S5: NPD (white) ── -->
+  <div class="scene" data-duration="9000" data-subtitle="Tatva's NPD Stage-Gate pipeline takes products from Discovery all the way to Launch — with configurable gate criteria, formal sign-offs, and automatic release triggers.">
+    <div class="split el">
+      <div class="text-side">
+        <span class="eyebrow">NPD Stage-Gate</span>
+        <div class="headline">Idea to launch.<br><span class="hi">No chaos.</span></div>
+        <div class="subline">Kanban pipeline from Discovery through Launch. Gate 5 GO automatically triggers a release request — no manual handoffs, no lost emails.</div>
+        <ul class="feat-list">
+          <li>Discovery → Feasibility → Development → Launch</li>
+          <li>Configurable must-meet gate criteria</li>
+          <li>Formal multi-role gate sign-offs</li>
+          <li>Auto release trigger on Gate 5 GO</li>
+        </ul>
+      </div>
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com/npd</div>
+          </div>
+          <img src="screenshots/npd.png" alt="NPD Pipeline"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S6: Digital Thread (alt bg) ── -->
+  <div class="scene bg-alt" data-duration="9000" data-subtitle="The Tatva Digital Thread connects every product asset into one interactive hub — formula, structure, artwork, documents, specs, changes, and releases. Completeness scored automatically.">
+    <div class="split el">
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com/items/:id/thread</div>
+          </div>
+          <img src="screenshots/digital-thread.png" alt="Digital Thread"/>
+        </div>
+      </div>
+      <div class="text-side">
+        <span class="eyebrow">Digital Thread</span>
+        <div class="headline">Full product<br><span class="hi">traceability.</span></div>
+        <div class="subline">Hub-and-spoke visual map centered on your finished good. Navigate to any linked record in one click.</div>
+        <ul class="feat-list">
+          <li>Formula → FG Structure → Artwork</li>
+          <li>Documents, Specs, Changes, Releases</li>
+          <li>Color-coded completeness scoring</li>
+          <li>Action items surfaced automatically</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S7: Labeling (white) ── -->
+  <div class="scene" data-duration="10000" data-subtitle="Click Generate. Tatva walks your entire formula tree, sorts ingredients by descending weight, auto-detects allergens, and produces a fully compliant label — FSSAI, EU 1169, and FDA — instantly.">
+    <div class="split el">
+      <div class="text-side">
+        <span class="eyebrow">Regulatory Labeling</span>
+        <div class="headline">Click Generate.<br><span class="hi">Label done.</span></div>
+        <div class="subline">Auto-generated ingredient declarations, allergen statements, and full nutrition panels. FSSAI, EU 1169, and FDA compliant — regenerated instantly when formula changes.</div>
+        <ul class="feat-list">
+          <li>Ingredients auto-sorted by descending weight</li>
+          <li>Allergens auto-detected from material master</li>
+          <li>Nutrition panel: energy, protein, carbs, fat, fibre, sodium</li>
+          <li>Per 100g and per serving breakdown</li>
+          <li>Shelf life, storage, country of origin, batch format</li>
+        </ul>
+      </div>
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com/labeling</div>
+          </div>
+          <img src="screenshots/labeling.png" alt="Regulatory Labeling"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S8: ERP (alt bg) ── -->
+  <div class="scene bg-alt" data-duration="9000" data-subtitle="Tatva connects natively to SAP S4HANA, Oracle, Dynamics 365, NetSuite, and any REST API. No middleware, no consultants — just configure, connect, and sync.">
+    <div class="split el">
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-chrome">
+            <div class="chrome-d"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+            <div class="chrome-url">tatva.com/integrations</div>
+          </div>
+          <img src="screenshots/integrations.png" alt="ERP Integration"/>
+        </div>
+      </div>
+      <div class="text-side">
+        <span class="eyebrow">ERP Integration</span>
+        <div class="headline">Connect your ERP.<br><span class="hi">In minutes.</span></div>
+        <div class="subline">Native adapters for SAP, Oracle, Dynamics 365, NetSuite. Push or pull items, formulas, and BOMs on-demand or on a schedule.</div>
+        <ul class="feat-list">
+          <li>SAP S/4HANA · Oracle EBS · Oracle Fusion</li>
+          <li>Dynamics 365 · NetSuite · Generic REST</li>
+          <li>Configurable field mappings and sync logs</li>
+          <li>No middleware, no consultants required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S9: Made in India / CTA (dark) ── -->
+  <div class="scene bg-dark" data-duration="10000" data-subtitle="Tatva is open-source, self-hosted, and free to deploy. Made in India for the world. Your data, your server — forever.">
+    <!-- Real logo white version -->
+    <div class="el" style="margin-bottom:32px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="300" height="67" fill="none">
+        <circle cx="36" cy="36" r="26" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <circle cx="36" cy="10" r="7" fill="#FF9933"/>
+        <circle cx="58.5" cy="49" r="7" fill="#138808"/>
+        <circle cx="13.5" cy="49" r="7" fill="#1A237E"/>
+        <circle cx="36" cy="36" r="5" fill="#4A6FD4"/>
+        <circle cx="36" cy="36" r="2.5" fill="white"/>
+        <text x="82" y="30" font-family="'Inter','Arial',sans-serif" font-size="28" font-weight="900" letter-spacing="6" fill="#FFFFFF">TATVA</text>
+        <text x="83" y="51" font-family="'Inter','Arial',sans-serif" font-size="11" font-weight="400" letter-spacing="2.5" fill="rgba(255,255,255,0.35)">PRODUCT LIFECYCLE MANAGEMENT</text>
+        <line x1="83" y1="57" x2="310" y2="57" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="el india-flag"></div>
+    <div class="el" style="font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,153,51,0.7);margin-bottom:20px">🇮🇳 Made in India for the World</div>
+    <div class="el headline headline-dark" style="font-size:clamp(32px,4vw,56px)">The PLM your team<br>actually wants to use.</div>
+    <div class="el subline subline-dark">Open-source. Self-hosted. No vendor fees. No lock-in.<br>Deploy in 10 minutes on your own infrastructure.</div>
+    <div class="el" style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <div class="btn-primary">Deploy Tatva Free →</div>
+      <div class="btn-ghost" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15)">github.com/PraveenSampathPLM/TatvaPLM</div>
+    </div>
+    <div class="el" style="margin-top:36px;font-size:12px;color:rgba(255,255,255,0.18);letter-spacing:0.05em">तत्त्व &nbsp;·&nbsp; Essence &nbsp;·&nbsp; The fundamental nature of things</div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- UI -->
+<div id="progress"><div id="progress-fill"></div></div>
+<div id="counter">01 / 09</div>
+<div id="controls">
+  <button class="ctrl-btn" id="btn-prev" onclick="prevScene()">← Prev</button>
+  <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">Pause</button>
+  <button class="ctrl-btn" id="btn-next" onclick="nextScene()">Next →</button>
+</div>
+<div id="dots"></div>
+<div id="subtitle"></div>
+
+<div id="replay">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="260" height="58" fill="none" style="margin-bottom:8px">
+    <circle cx="36" cy="36" r="26" stroke="#E2E8F0" stroke-width="1.5"/>
+    <circle cx="36" cy="10" r="7" fill="#FF9933"/>
+    <circle cx="58.5" cy="49" r="7" fill="#138808"/>
+    <circle cx="13.5" cy="49" r="7" fill="#1A237E"/>
+    <circle cx="36" cy="36" r="5" fill="#1A237E"/>
+    <circle cx="36" cy="36" r="2.5" fill="white"/>
+    <text x="82" y="30" font-family="'Inter','Arial',sans-serif" font-size="28" font-weight="900" letter-spacing="6" fill="#1D1D1F">TATVA</text>
+    <text x="83" y="51" font-family="'Inter','Arial',sans-serif" font-size="11" font-weight="400" letter-spacing="2.5" fill="#6E6E73">PRODUCT LIFECYCLE MANAGEMENT</text>
+    <line x1="83" y1="57" x2="310" y2="57" stroke="#D2D2D7" stroke-width="1" stroke-linecap="round"/>
+  </svg>
+  <p>Enterprise PLM for Process Industries</p>
+  <button id="replay-btn" onclick="replayVideo()">↩ Watch Again</button>
+</div>
+
+<script>
+  const scenes = document.querySelectorAll('.scene');
+  const total = scenes.length;
+  let current = 0, paused = false, elapsed = 0, rafId = null, startTime = null, currentDuration = 0;
+
+  const dotsEl = document.getElementById('dots');
+  const subtitleEl = document.getElementById('subtitle');
+  const counterEl = document.getElementById('counter');
+  const fillEl = document.getElementById('progress-fill');
+  const pauseBtn = document.getElementById('btn-pause');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+
+  function getDots() { return dotsEl.querySelectorAll('.dot'); }
+
+  function updateControls() {
+    const isDark = scenes[current].classList.contains('bg-dark');
+    document.querySelectorAll('.ctrl-btn').forEach(b => {
+      b.classList.toggle('dark', isDark);
+    });
+    counterEl.style.color = isDark ? 'rgba(255,255,255,0.3)' : '';
+    subtitleEl.style.color = isDark ? 'rgba(255,255,255,0.35)' : '';
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+      d.style.background = i === current
+        ? (isDark ? 'rgba(255,153,51,0.8)' : '#E8590C')
+        : (isDark ? 'rgba(255,255,255,0.2)' : '#D2D2D7');
+    });
+    fillEl.style.background = isDark ? '#FF9933' : '#E8590C';
+  }
+
+  function goTo(idx) {
+    cancelAnimationFrame(rafId);
+    scenes[current].classList.remove('active');
+    getDots()[current].classList.remove('active');
+    current = idx;
+    scenes[current].classList.add('active');
+    getDots()[current].classList.add('active');
+    counterEl.textContent = String(current + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    subtitleEl.textContent = scenes[current].dataset.subtitle || '';
+    currentDuration = parseInt(scenes[current].dataset.duration || '8000');
+    elapsed = 0;
+    fillEl.style.width = '0%';
+    updateControls();
+    if (!paused) startProgress();
+  }
+
+  function startProgress() {
+    startTime = performance.now();
+    function tick(now) {
+      const pct = Math.min((elapsed + (now - startTime)) / currentDuration * 100, 100);
+      fillEl.style.width = pct + '%';
+      if (pct < 100) { rafId = requestAnimationFrame(tick); }
+      else {
+        elapsed = 0;
+        if (current < total - 1) goTo(current + 1);
+        else document.getElementById('replay').classList.add('show');
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function togglePause() {
+    if (paused) {
+      paused = false; pauseBtn.textContent = 'Pause'; startProgress();
+    } else {
+      paused = true; pauseBtn.textContent = 'Play ▶';
+      elapsed += performance.now() - startTime;
+      cancelAnimationFrame(rafId);
+    }
+  }
+
+  function prevScene() { if (current > 0) goTo(current - 1); }
+  function nextScene() { if (current < total - 1) goTo(current + 1); }
+  function replayVideo() { document.getElementById('replay').classList.remove('show'); goTo(0); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') nextScene();
+    else if (e.key === 'ArrowLeft') prevScene();
+    else if (e.key.toLowerCase() === 'p') togglePause();
+    else if (e.key.toLowerCase() === 'r') replayVideo();
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>
