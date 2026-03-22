@@ -263,13 +263,13 @@ function breadcrumbLabelForSegment(segment: string, prevSegment?: string): strin
 export function AppLayout(): JSX.Element {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedContainerId, setSelectedContainerId } = useContainerStore();
+  const { selectedContainerId, setSelectedContainerId, selectedIndustry, setSelectedIndustry } = useContainerStore();
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { startTour } = useAppTour(true);
   const containers = useQuery({
     queryKey: ["layout-container-options"],
-    queryFn: async () => (await api.get<{ data: Array<{ id: string; code: string; name: string }> }>("/containers")).data
+    queryFn: async () => (await api.get<{ data: Array<{ id: string; code: string; name: string; industry: string }> }>("/containers")).data
   });
   const tasks = useQuery({
     queryKey: ["workflow-tasks-count"],
@@ -304,24 +304,53 @@ export function AppLayout(): JSX.Element {
     }
     return crumbs;
   }, [location.pathname]);
+  // Industry label map
+  const INDUSTRY_LABELS: Record<string, string> = {
+    FOOD_BEVERAGE: "Food & Beverage",
+    POLYMER:       "Polymer",
+    CPG:           "Consumer & Personal Care",
+    CHEMICAL:      "Industrial Chemicals",
+    TYRE:          "Tyre & Rubber",
+    PAINT:         "Paints & Coatings"
+  };
+
+  // Available industries derived from accessible containers
+  const availableIndustries = useMemo(
+    () => [...new Set((containers.data?.data ?? []).map((c) => c.industry))],
+    [containers.data?.data]
+  );
+
+  // Containers filtered by selected industry
+  const filteredContainers = useMemo(
+    () =>
+      selectedIndustry
+        ? (containers.data?.data ?? []).filter((c) => c.industry === selectedIndustry)
+        : (containers.data?.data ?? []),
+    [containers.data?.data, selectedIndustry]
+  );
+
   useEffect(() => {
-    if (!containers.data?.data) {
-      return;
-    }
+    if (!containers.data?.data) return;
+
+    // Validate current container still exists
     if (selectedContainerId) {
-      const exists = containers.data.data.some((container) => container.id === selectedContainerId);
-      if (exists) {
-        return;
-      }
-      setSelectedContainerId("");
+      const exists = containers.data.data.some((c) => c.id === selectedContainerId);
+      if (!exists) setSelectedContainerId("");
       return;
     }
-    // Default to FOOD-CORE when no container is selected so seeded F&B data is visible immediately.
-    const foodContainer = containers.data.data.find((container) => container.code === "FOOD-CORE");
-    if (foodContainer) {
-      setSelectedContainerId(foodContainer.id);
+
+    // Default to Food & Beverage industry + first FOOD-CORE container on first load
+    if (!selectedIndustry) {
+      setSelectedIndustry("FOOD_BEVERAGE");
     }
-  }, [containers.data?.data, selectedContainerId, setSelectedContainerId]);
+    const targetIndustry = selectedIndustry || "FOOD_BEVERAGE";
+    const defaultContainer = containers.data.data.find(
+      (c) => c.industry === targetIndustry
+    );
+    if (defaultContainer) {
+      setSelectedContainerId(defaultContainer.id);
+    }
+  }, [containers.data?.data, selectedContainerId, selectedIndustry, setSelectedContainerId, setSelectedIndustry]);
 
   useEffect(() => {
     if (!location.pathname.startsWith("/tasks")) {
@@ -410,17 +439,37 @@ export function AppLayout(): JSX.Element {
               </nav>
             ) : null}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Industry selector */}
+            <select
+              value={selectedIndustry}
+              onChange={(e) => {
+                setSelectedIndustry(e.target.value);
+                setSelectedContainerId("");
+              }}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm"
+              title="Select Industry"
+            >
+              <option value="">All Industries</option>
+              {availableIndustries.map((ind) => (
+                <option key={ind} value={ind}>
+                  {INDUSTRY_LABELS[ind] ?? ind}
+                </option>
+              ))}
+            </select>
+
+            {/* Container selector — filtered by industry */}
             <select
               id="tour-container-selector"
               value={selectedContainerId}
-              onChange={(event) => setSelectedContainerId(event.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs shadow-sm"
+              onChange={(e) => setSelectedContainerId(e.target.value)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm"
+              title="Select Container"
             >
-              <option value="">All Accessible Containers</option>
-              {containers.data?.data.map((container) => (
+              <option value="">All Containers</option>
+              {filteredContainers.map((container) => (
                 <option key={container.id} value={container.id}>
-                  {container.code} - {container.name}
+                  {container.code} – {container.name}
                 </option>
               ))}
             </select>

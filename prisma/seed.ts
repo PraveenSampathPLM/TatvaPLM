@@ -7,12 +7,15 @@ import {
   ChangePriority,
   ChangeType,
   LifecycleStatus,
-  ChangeStatus
+  ChangeStatus,
+  NpdStage,
+  NpdStatus
 } from "@prisma/client";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
+import { seedDocuments } from "./seed-documents.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +50,8 @@ async function main() {
     await prisma.containerMembership.deleteMany();
     await prisma.containerRole.deleteMany();
     await prisma.productContainer.deleteMany();
+    await prisma.gateReview.deleteMany();
+    await prisma.npdProject.deleteMany();
     await prisma.workflowDefinition.deleteMany();
   }
 
@@ -2716,6 +2721,350 @@ async function main() {
     });
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // CPG-CORE — Consumer & Personal Care Portfolio
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding CPG-CORE...");
+  const cpgContainer = await prisma.productContainer.upsert({
+    where: { code: "CPG-CORE" },
+    update: { name: "Consumer & Personal Care Portfolio", description: "Personal care and home care product portfolio", industry: Industry.CPG, ownerId: plmAdmin.id, status: "ACTIVE" },
+    create: { code: "CPG-CORE", name: "Consumer & Personal Care Portfolio", description: "Personal care and home care product portfolio", industry: Industry.CPG, ownerId: plmAdmin.id, status: "ACTIVE" }
+  });
+  await prisma.containerRole.upsert({
+    where: { containerId_name: { containerId: cpgContainer.id, name: "Container Admin" } },
+    update: { description: "Full administration for CPG container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] },
+    create: { containerId: cpgContainer.id, name: "Container Admin", description: "Full administration for CPG container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] }
+  });
+  const cpgItems = [
+    ["CPG-RM-0001", "Sodium Lauryl Sulfate"],
+    ["CPG-RM-0002", "Cocamidopropyl Betaine"],
+    ["CPG-RM-0003", "Glycerin USP"],
+    ["CPG-RM-0004", "Fragrance Oil Fresh Morning"],
+    ["CPG-RM-0005", "Citric Acid Anhydrous"],
+    ["CPG-RM-0006", "Phenoxyethanol"],
+    ["CPG-RM-0007", "Caprylyl Glycol"],
+    ["CPG-RM-0008", "Sodium Chloride"],
+    ["CPG-RM-0009", "Purified Water"],
+    ["CPG-RM-0010", "Carbomer 940"],
+    ["CPG-FG-0001", "Moisturizing Shampoo 200ml"],
+    ["CPG-FG-0002", "Daily Face Wash 150ml"],
+    ["CPG-PKG-0001", "HDPE Bottle 200ml"],
+    ["CPG-PKG-0002", "Flip-Top Cap 28mm"],
+    ["CPG-PKG-0003", "Corrugated Shipper Box"]
+  ] as const;
+  for (const [itemCode, name] of cpgItems) {
+    const type = itemCode.includes("CPG-FG") ? ItemType.FINISHED_GOOD : itemCode.includes("CPG-PKG") ? ItemType.PACKAGING : ItemType.RAW_MATERIAL;
+    await prisma.item.upsert({
+      where: { itemCode_revisionMajor_revisionIteration: { itemCode, revisionMajor: 1, revisionIteration: 1 } },
+      update: { name, industryType: Industry.CPG, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: cpgContainer.id, regulatoryFlags: { REACH: true, GHS: true } },
+      create: { itemCode, name, industryType: Industry.CPG, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: cpgContainer.id, regulatoryFlags: { REACH: true, GHS: true } }
+    });
+  }
+  const cpgRmItems = await prisma.item.findMany({ where: { itemCode: { startsWith: "CPG-RM-" }, containerId: cpgContainer.id } });
+  for (const item of cpgRmItems) {
+    await prisma.specification.createMany({
+      data: [
+        { itemId: item.id, containerId: cpgContainer.id, specType: "APPEARANCE", attribute: "Appearance", value: "Clear to slightly hazy liquid", testMethod: "Visual" },
+        { itemId: item.id, containerId: cpgContainer.id, specType: "CHEMICAL", attribute: "pH (1% Solution)", minValue: 6.0, maxValue: 8.0, uom: "", testMethod: "pH Meter" },
+        { itemId: item.id, containerId: cpgContainer.id, specType: "CHEMICAL", attribute: "Active Content", minValue: 28.0, maxValue: 32.0, uom: "%", testMethod: "Titration" },
+        { itemId: item.id, containerId: cpgContainer.id, specType: "PHYSICAL", attribute: "Viscosity at 25°C", minValue: 100, maxValue: 500, uom: "mPa.s", testMethod: "Brookfield" },
+        { itemId: item.id, containerId: cpgContainer.id, specType: "CHEMICAL", attribute: "Moisture Content", maxValue: 1.0, uom: "%", testMethod: "Karl Fischer" },
+        { itemId: item.id, containerId: cpgContainer.id, specType: "SAFETY", attribute: "Flash Point", minValue: 60, uom: "°C", testMethod: "Closed Cup" }
+      ],
+      skipDuplicates: true
+    });
+  }
+  const cpgFormulaDefs = [
+    ["CPG-FML-0001", "Moisturizing Shampoo Base", FormulaStatus.RELEASED],
+    ["CPG-FML-0002", "Daily Face Wash Concentrate", FormulaStatus.RELEASED]
+  ] as const;
+  for (let idx = 0; idx < cpgFormulaDefs.length; idx++) {
+    const [formulaCode, name, status] = cpgFormulaDefs[idx];
+    const formula = await prisma.formula.upsert({
+      where: { formulaCode_version: { formulaCode, version: 1 } },
+      update: { name, industryType: Industry.CPG, containerId: cpgContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" },
+      create: { formulaCode, version: 1, name, industryType: Industry.CPG, containerId: cpgContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" }
+    });
+    if ((await prisma.formulaIngredient.count({ where: { formulaId: formula.id } })) === 0) {
+      const cpgRMs = await prisma.item.findMany({ where: { itemCode: { startsWith: "CPG-RM-" } }, take: 4, skip: idx * 2 });
+      const qtys = [650, 200, 100, 50];
+      await prisma.formulaIngredient.createMany({
+        data: cpgRMs.slice(0, 4).map((rm, i) => ({ formulaId: formula.id, itemId: rm.id, quantity: qtys[i], percentage: qtys[i] / 10, uom: "kg", additionSequence: i + 1 })),
+        skipDuplicates: true
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CHEM-CORE — Industrial Chemicals Portfolio
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding CHEM-CORE...");
+  const chemContainer = await prisma.productContainer.upsert({
+    where: { code: "CHEM-CORE" },
+    update: { name: "Industrial Chemicals Portfolio", description: "Industrial and specialty chemicals portfolio", industry: Industry.CHEMICAL, ownerId: plmAdmin.id, status: "ACTIVE" },
+    create: { code: "CHEM-CORE", name: "Industrial Chemicals Portfolio", description: "Industrial and specialty chemicals portfolio", industry: Industry.CHEMICAL, ownerId: plmAdmin.id, status: "ACTIVE" }
+  });
+  await prisma.containerRole.upsert({
+    where: { containerId_name: { containerId: chemContainer.id, name: "Container Admin" } },
+    update: { description: "Full administration for Chemical container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] },
+    create: { containerId: chemContainer.id, name: "Container Admin", description: "Full administration for Chemical container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] }
+  });
+  const chemItems = [
+    ["CH-RM-0001", "Methanol Technical Grade"],
+    ["CH-RM-0002", "Ethanol 95% Denatured"],
+    ["CH-RM-0003", "Acetone Pure Grade"],
+    ["CH-RM-0004", "Caustic Soda Flakes 99%"],
+    ["CH-RM-0005", "Hydrochloric Acid 33%"],
+    ["CH-RM-0006", "Acetic Acid Glacial"],
+    ["CH-RM-0007", "Hydrogen Peroxide 50%"],
+    ["CH-RM-0008", "Sodium Bicarbonate"],
+    ["CH-RM-0009", "Isopropyl Alcohol 99%"],
+    ["CH-RM-0010", "Surfactant Blend Low-Foam"],
+    ["CH-FG-0001", "Industrial Degreaser HD"],
+    ["CH-FG-0002", "Surface Cleaner Concentrate"],
+    ["CH-PKG-0001", "HDPE Drum 200L"],
+    ["CH-PKG-0002", "Jerry Can 20L HDPE"],
+    ["CH-PKG-0003", "Pump Dispenser Cap 38mm"]
+  ] as const;
+  for (const [itemCode, name] of chemItems) {
+    const type = itemCode.includes("CH-FG") ? ItemType.FINISHED_GOOD : itemCode.includes("CH-PKG") ? ItemType.PACKAGING : ItemType.RAW_MATERIAL;
+    await prisma.item.upsert({
+      where: { itemCode_revisionMajor_revisionIteration: { itemCode, revisionMajor: 1, revisionIteration: 1 } },
+      update: { name, industryType: Industry.CHEMICAL, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: chemContainer.id, regulatoryFlags: { REACH: true, GHS: true, SDS_REQUIRED: true } },
+      create: { itemCode, name, industryType: Industry.CHEMICAL, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: chemContainer.id, regulatoryFlags: { REACH: true, GHS: true, SDS_REQUIRED: true } }
+    });
+  }
+  const chemRmItems = await prisma.item.findMany({ where: { itemCode: { startsWith: "CH-RM-" }, containerId: chemContainer.id } });
+  for (const item of chemRmItems) {
+    await prisma.specification.createMany({
+      data: [
+        { itemId: item.id, containerId: chemContainer.id, specType: "CHEMICAL", attribute: "Purity", minValue: 98.0, uom: "%", testMethod: "GC Analysis" },
+        { itemId: item.id, containerId: chemContainer.id, specType: "CHEMICAL", attribute: "Water Content", maxValue: 0.5, uom: "%", testMethod: "Karl Fischer" },
+        { itemId: item.id, containerId: chemContainer.id, specType: "PHYSICAL", attribute: "Density at 20°C", minValue: 0.78, maxValue: 0.82, uom: "g/cm³", testMethod: "Pycnometer" },
+        { itemId: item.id, containerId: chemContainer.id, specType: "PHYSICAL", attribute: "Boiling Point", minValue: 56, maxValue: 66, uom: "°C", testMethod: "ASTM D86" },
+        { itemId: item.id, containerId: chemContainer.id, specType: "SAFETY", attribute: "Flash Point", maxValue: 15, uom: "°C", testMethod: "Closed Cup" },
+        { itemId: item.id, containerId: chemContainer.id, specType: "SAFETY", attribute: "GHS Classification", value: "Flammable Liquid Cat.2", testMethod: "GHS Review" }
+      ],
+      skipDuplicates: true
+    });
+  }
+  const chemFormulaDefs = [
+    ["CH-FML-0001", "HD Degreaser Concentrate Formula", FormulaStatus.RELEASED],
+    ["CH-FML-0002", "Surface Cleaner Multi-Purpose Formula", FormulaStatus.RELEASED]
+  ] as const;
+  for (let idx = 0; idx < chemFormulaDefs.length; idx++) {
+    const [formulaCode, name, status] = chemFormulaDefs[idx];
+    const formula = await prisma.formula.upsert({
+      where: { formulaCode_version: { formulaCode, version: 1 } },
+      update: { name, industryType: Industry.CHEMICAL, containerId: chemContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" },
+      create: { formulaCode, version: 1, name, industryType: Industry.CHEMICAL, containerId: chemContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" }
+    });
+    if ((await prisma.formulaIngredient.count({ where: { formulaId: formula.id } })) === 0) {
+      const chemRMs = await prisma.item.findMany({ where: { itemCode: { startsWith: "CH-RM-" } }, take: 4, skip: idx * 2 });
+      const qtys = [600, 250, 100, 50];
+      await prisma.formulaIngredient.createMany({
+        data: chemRMs.slice(0, 4).map((rm, i) => ({ formulaId: formula.id, itemId: rm.id, quantity: qtys[i], percentage: qtys[i] / 10, uom: "kg", additionSequence: i + 1 })),
+        skipDuplicates: true
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // TYRE-CORE — Tyre & Rubber Compounds Portfolio
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding TYRE-CORE...");
+  const tyreContainer = await prisma.productContainer.upsert({
+    where: { code: "TYRE-CORE" },
+    update: { name: "Tyre & Rubber Compounds Portfolio", description: "Tyre manufacturing compounds and rubber portfolio", industry: Industry.TYRE, ownerId: plmAdmin.id, status: "ACTIVE" },
+    create: { code: "TYRE-CORE", name: "Tyre & Rubber Compounds Portfolio", description: "Tyre manufacturing compounds and rubber portfolio", industry: Industry.TYRE, ownerId: plmAdmin.id, status: "ACTIVE" }
+  });
+  await prisma.containerRole.upsert({
+    where: { containerId_name: { containerId: tyreContainer.id, name: "Container Admin" } },
+    update: { description: "Full administration for Tyre container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] },
+    create: { containerId: tyreContainer.id, name: "Container Admin", description: "Full administration for Tyre container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] }
+  });
+  const tyreItems = [
+    ["TYR-RM-0001", "Natural Rubber RSS3"],
+    ["TYR-RM-0002", "Styrene Butadiene Rubber SBR 1502"],
+    ["TYR-RM-0003", "Carbon Black N330"],
+    ["TYR-RM-0004", "Zinc Oxide Indirect Process"],
+    ["TYR-RM-0005", "Stearic Acid"],
+    ["TYR-RM-0006", "Sulfur Powder 80 Mesh"],
+    ["TYR-RM-0007", "CBS Accelerator"],
+    ["TYR-RM-0008", "Aromatic Process Oil"],
+    ["TYR-RM-0009", "Precipitated Silica 165GR"],
+    ["TYR-RM-0010", "Steel Bead Wire 0.96mm"],
+    ["TYR-FG-0001", "PCR Tyre 195/65R15"],
+    ["TYR-FG-0002", "TBR Tyre 295/80R22.5"],
+    ["TYR-PKG-0001", "Polyethylene Tyre Bag"],
+    ["TYR-PKG-0002", "Wood Pallet 1200x1000mm"],
+    ["TYR-PKG-0003", "Steel Banding Strap 19mm"]
+  ] as const;
+  for (const [itemCode, name] of tyreItems) {
+    const type = itemCode.includes("TYR-FG") ? ItemType.FINISHED_GOOD : itemCode.includes("TYR-PKG") ? ItemType.PACKAGING : ItemType.RAW_MATERIAL;
+    await prisma.item.upsert({
+      where: { itemCode_revisionMajor_revisionIteration: { itemCode, revisionMajor: 1, revisionIteration: 1 } },
+      update: { name, industryType: Industry.TYRE, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: tyreContainer.id, regulatoryFlags: { REACH: true } },
+      create: { itemCode, name, industryType: Industry.TYRE, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: tyreContainer.id, regulatoryFlags: { REACH: true } }
+    });
+  }
+  const tyreRmItems = await prisma.item.findMany({ where: { itemCode: { startsWith: "TYR-RM-" }, containerId: tyreContainer.id } });
+  for (const item of tyreRmItems) {
+    await prisma.specification.createMany({
+      data: [
+        { itemId: item.id, containerId: tyreContainer.id, specType: "PHYSICAL", attribute: "Mooney Viscosity ML(1+4) at 100°C", minValue: 60, maxValue: 80, uom: "MU", testMethod: "ASTM D1646" },
+        { itemId: item.id, containerId: tyreContainer.id, specType: "CHEMICAL", attribute: "Dirt Content", maxValue: 0.05, uom: "%", testMethod: "ASTM D1278" },
+        { itemId: item.id, containerId: tyreContainer.id, specType: "CHEMICAL", attribute: "Ash Content", maxValue: 0.6, uom: "%", testMethod: "ASTM D1278" },
+        { itemId: item.id, containerId: tyreContainer.id, specType: "CHEMICAL", attribute: "Volatile Matter", maxValue: 1.0, uom: "%", testMethod: "ISO 248" },
+        { itemId: item.id, containerId: tyreContainer.id, specType: "PERFORMANCE", attribute: "Tensile Strength (cured)", minValue: 20, uom: "MPa", testMethod: "ISO 37" },
+        { itemId: item.id, containerId: tyreContainer.id, specType: "PERFORMANCE", attribute: "Elongation at Break", minValue: 400, uom: "%", testMethod: "ISO 37" }
+      ],
+      skipDuplicates: true
+    });
+  }
+  const tyreFormulaDefs = [
+    ["TYR-FML-0001", "PCR Tread Compound Formula", FormulaStatus.RELEASED],
+    ["TYR-FML-0002", "PCR Sidewall Compound Formula", FormulaStatus.RELEASED]
+  ] as const;
+  for (let idx = 0; idx < tyreFormulaDefs.length; idx++) {
+    const [formulaCode, name, status] = tyreFormulaDefs[idx];
+    const formula = await prisma.formula.upsert({
+      where: { formulaCode_version: { formulaCode, version: 1 } },
+      update: { name, industryType: Industry.TYRE, containerId: tyreContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" },
+      create: { formulaCode, version: 1, name, industryType: Industry.TYRE, containerId: tyreContainer.id, status, ownerId: chemist.id, targetYield: 1000, yieldUom: "kg", batchSize: 1000, batchUom: "kg" }
+    });
+    if ((await prisma.formulaIngredient.count({ where: { formulaId: formula.id } })) === 0) {
+      const tyreRMs = await prisma.item.findMany({ where: { itemCode: { startsWith: "TYR-RM-" } }, take: 5, skip: idx });
+      const qtys = [400, 300, 150, 100, 50];
+      await prisma.formulaIngredient.createMany({
+        data: tyreRMs.slice(0, 5).map((rm, i) => ({ formulaId: formula.id, itemId: rm.id, quantity: qtys[i], percentage: qtys[i] / 10, uom: "kg", additionSequence: i + 1 })),
+        skipDuplicates: true
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PAINT-CORE — Paints & Coatings Portfolio
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding PAINT-CORE...");
+  const paintContainer = await prisma.productContainer.upsert({
+    where: { code: "PAINT-CORE" },
+    update: { name: "Paints & Coatings Portfolio", description: "Decorative and industrial paints portfolio", industry: Industry.PAINT, ownerId: plmAdmin.id, status: "ACTIVE" },
+    create: { code: "PAINT-CORE", name: "Paints & Coatings Portfolio", description: "Decorative and industrial paints portfolio", industry: Industry.PAINT, ownerId: plmAdmin.id, status: "ACTIVE" }
+  });
+  await prisma.containerRole.upsert({
+    where: { containerId_name: { containerId: paintContainer.id, name: "Container Admin" } },
+    update: { description: "Full administration for Paint container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] },
+    create: { containerId: paintContainer.id, name: "Container Admin", description: "Full administration for Paint container", permissions: ["CONTAINER_ADMIN","ITEM_READ","ITEM_WRITE","FORMULA_READ","FORMULA_WRITE","BOM_READ","BOM_WRITE","CHANGE_READ","CHANGE_WRITE","RELEASE_READ","RELEASE_WRITE","SPEC_READ","SPEC_WRITE"] }
+  });
+  const paintItems = [
+    ["PNT-RM-0001", "Titanium Dioxide Rutile R-902"],
+    ["PNT-RM-0002", "Alkyd Resin 60% NV"],
+    ["PNT-RM-0003", "Calcium Carbonate Calcite 5 Micron"],
+    ["PNT-RM-0004", "Talc Micronised 10 Micron"],
+    ["PNT-RM-0005", "Red Iron Oxide Pigment"],
+    ["PNT-RM-0006", "Carbon Black Pigment HCC"],
+    ["PNT-RM-0007", "White Spirit 135-180"],
+    ["PNT-RM-0008", "Cobalt Drier 10%"],
+    ["PNT-RM-0009", "Anti-Settling Agent BYK"],
+    ["PNT-RM-0010", "Kaolin Clay Water Washed"],
+    ["PNT-FG-0001", "White Interior Emulsion 20L"],
+    ["PNT-FG-0002", "Red Oxide Metal Primer 4L"],
+    ["PNT-PKG-0001", "Metal Paint Pail 20L with Lid"],
+    ["PNT-PKG-0002", "Metal Paint Pail 4L with Lid"],
+    ["PNT-PKG-0003", "Wire Bail Carry Handle"]
+  ] as const;
+  for (const [itemCode, name] of paintItems) {
+    const type = itemCode.includes("PNT-FG") ? ItemType.FINISHED_GOOD : itemCode.includes("PNT-PKG") ? ItemType.PACKAGING : ItemType.RAW_MATERIAL;
+    await prisma.item.upsert({
+      where: { itemCode_revisionMajor_revisionIteration: { itemCode, revisionMajor: 1, revisionIteration: 1 } },
+      update: { name, industryType: Industry.PAINT, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: paintContainer.id, regulatoryFlags: { REACH: true, VOC_COMPLIANT: true } },
+      create: { itemCode, name, industryType: Industry.PAINT, itemType: type, uom: type === ItemType.PACKAGING ? "ea" : "kg", status: LifecycleStatus.RELEASED, containerId: paintContainer.id, regulatoryFlags: { REACH: true, VOC_COMPLIANT: true } }
+    });
+  }
+  const paintRmItems = await prisma.item.findMany({ where: { itemCode: { startsWith: "PNT-RM-" }, containerId: paintContainer.id } });
+  for (const item of paintRmItems) {
+    await prisma.specification.createMany({
+      data: [
+        { itemId: item.id, containerId: paintContainer.id, specType: "PHYSICAL", attribute: "Oil Absorption", minValue: 14, maxValue: 20, uom: "g/100g", testMethod: "ASTM D281" },
+        { itemId: item.id, containerId: paintContainer.id, specType: "PERFORMANCE", attribute: "Tinting Strength", minValue: 1800, maxValue: 2200, uom: "Reynold's Unit", testMethod: "ISO 787-16" },
+        { itemId: item.id, containerId: paintContainer.id, specType: "CHEMICAL", attribute: "pH of Aqueous Suspension", minValue: 6.5, maxValue: 8.5, testMethod: "ISO 787-9" },
+        { itemId: item.id, containerId: paintContainer.id, specType: "CHEMICAL", attribute: "Moisture Content", maxValue: 0.5, uom: "%", testMethod: "ISO 787-2" },
+        { itemId: item.id, containerId: paintContainer.id, specType: "PHYSICAL", attribute: "Fineness of Grind", maxValue: 10, uom: "Hegman", testMethod: "ASTM D1210" },
+        { itemId: item.id, containerId: paintContainer.id, specType: "SAFETY", attribute: "VOC Content", maxValue: 50, uom: "g/L", testMethod: "ISO 11890-2" }
+      ],
+      skipDuplicates: true
+    });
+  }
+  const paintFormulaDefs = [
+    ["PNT-FML-0001", "White Interior Emulsion Formula", FormulaStatus.RELEASED],
+    ["PNT-FML-0002", "Red Oxide Primer Formula", FormulaStatus.RELEASED]
+  ] as const;
+  for (let idx = 0; idx < paintFormulaDefs.length; idx++) {
+    const [formulaCode, name, status] = paintFormulaDefs[idx];
+    const formula = await prisma.formula.upsert({
+      where: { formulaCode_version: { formulaCode, version: 1 } },
+      update: { name, industryType: Industry.PAINT, containerId: paintContainer.id, status, ownerId: chemist.id, targetYield: 20, yieldUom: "L", batchSize: 20, batchUom: "L" },
+      create: { formulaCode, version: 1, name, industryType: Industry.PAINT, containerId: paintContainer.id, status, ownerId: chemist.id, targetYield: 20, yieldUom: "L", batchSize: 20, batchUom: "L" }
+    });
+    if ((await prisma.formulaIngredient.count({ where: { formulaId: formula.id } })) === 0) {
+      const paintRMs = await prisma.item.findMany({ where: { itemCode: { startsWith: "PNT-RM-" } }, take: 4, skip: idx * 2 });
+      const qtys = idx === 0 ? [350, 250, 200, 100] : [400, 300, 150, 50];
+      const total = qtys.reduce((a, b) => a + b, 0);
+      await prisma.formulaIngredient.createMany({
+        data: paintRMs.slice(0, 4).map((rm, i) => ({ formulaId: formula.id, itemId: rm.id, quantity: qtys[i], percentage: qtys[i] / (total / 100), uom: "kg", additionSequence: i + 1 })),
+        skipDuplicates: true
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // NPD PROJECTS — seeded for all 6 industry cores
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding NPD projects...");
+
+  const npdDefs = [
+    // FOOD-CORE projects
+    { projectCode: "FNB-NPD-0001", name: "Low-Sugar Caramel Biscuit Reformulation", stage: NpdStage.LAUNCH, fgCode: "FNB-FG-0001" as string | null, description: "Reformulate caramel biscuit to reduce sugar content by 30% while maintaining taste profile for health-conscious consumers.", containerCode: "FOOD-CORE" },
+    { projectCode: "FNB-NPD-0002", name: "Vegan Dark Chocolate Bar Launch", stage: NpdStage.DEVELOPMENT, fgCode: "FNB-FG-0002" as string | null, description: "Develop plant-based dark chocolate bar using cocoa butter alternatives targeting the premium vegan segment.", containerCode: "FOOD-CORE" },
+    { projectCode: "FNB-NPD-0003", name: "Functional Fruit Nectar with Probiotics", stage: NpdStage.FEASIBILITY, fgCode: "FNB-FG-0003" as string | null, description: "Add probiotic cultures to fruit nectar range to enter the functional beverage segment.", containerCode: "FOOD-CORE" },
+    { projectCode: "FNB-NPD-0004", name: "Keto Snack Bar Feasibility Study", stage: NpdStage.DISCOVERY, fgCode: null, description: "Explore feasibility of a ketogenic snack bar using alternative flours and sugar replacers.", containerCode: "FOOD-CORE" },
+    // POLY-CORE projects
+    { projectCode: "PLY-NPD-0001", name: "Bio-based HDPE Film Development", stage: NpdStage.VALIDATION, fgCode: "PLY-FG-0002" as string | null, description: "Develop HDPE film grade using 30% bio-based feedstock to meet EU sustainability targets.", containerCode: "POLY-CORE" },
+    { projectCode: "PLY-NPD-0002", name: "Recycled Content PP Compound", stage: NpdStage.DEVELOPMENT, fgCode: "PLY-FG-0001" as string | null, description: "Incorporate 25% post-consumer recycled PP into injection molding compound without sacrificing mechanical properties.", containerCode: "POLY-CORE" },
+    { projectCode: "PLY-NPD-0003", name: "Halogen-Free Flame Retardant Grade", stage: NpdStage.DISCOVERY, fgCode: null, description: "Develop halogen-free FR additive system meeting UL94 V-0 classification for electronics applications.", containerCode: "POLY-CORE" },
+    // CPG-CORE projects
+    { projectCode: "CPG-NPD-0001", name: "Sulphate-Free Shampoo Launch", stage: NpdStage.LAUNCH, fgCode: "CPG-FG-0001" as string | null, description: "Reformulate shampoo without SLS/SLES to meet sulphate-free consumer demand in premium haircare.", containerCode: "CPG-CORE" },
+    { projectCode: "CPG-NPD-0002", name: "SPF 30 Moisturizing Face Wash", stage: NpdStage.DEVELOPMENT, fgCode: "CPG-FG-0002" as string | null, description: "Add broad-spectrum SPF 30 protection to daily face wash using physical UV filters.", containerCode: "CPG-CORE" },
+    { projectCode: "CPG-NPD-0003", name: "Microplastic-Free Body Scrub", stage: NpdStage.FEASIBILITY, fgCode: null, description: "Develop body scrub using natural exfoliants (apricot kernel, walnut shell) to replace polyethylene beads.", containerCode: "CPG-CORE" },
+    // CHEM-CORE projects
+    { projectCode: "CH-NPD-0001", name: "Bio-Surfactant Industrial Cleaner", stage: NpdStage.DEVELOPMENT, fgCode: "CH-FG-0002" as string | null, description: "Replace petrochemical surfactants with biosurfactants derived from agricultural waste for eco-label compliance.", containerCode: "CHEM-CORE" },
+    { projectCode: "CH-NPD-0002", name: "Low-VOC Degreaser HD Plus", stage: NpdStage.VALIDATION, fgCode: "CH-FG-0001" as string | null, description: "Reformulate heavy-duty degreaser to VOC <50 g/L meeting stringent California CARB regulations.", containerCode: "CHEM-CORE" },
+    { projectCode: "CH-NPD-0003", name: "Concentrate 10x Industrial Cleaner", stage: NpdStage.DISCOVERY, fgCode: null, description: "Develop ultra-concentrated cleaner (10x dilution) to reduce packaging and transport costs by 60%.", containerCode: "CHEM-CORE" },
+    // TYRE-CORE projects
+    { projectCode: "TYR-NPD-0001", name: "Silica-Rich Low Rolling Resistance Tread", stage: NpdStage.DEVELOPMENT, fgCode: "TYR-FG-0001" as string | null, description: "Replace carbon black with high-dispersion silica to achieve AA EU label rolling resistance rating.", containerCode: "TYRE-CORE" },
+    { projectCode: "TYR-NPD-0002", name: "All-Season Winter Tyre Compound", stage: NpdStage.FEASIBILITY, fgCode: null, description: "Develop tread compound maintaining flexibility at -20°C for 3PMSF certification.", containerCode: "TYRE-CORE" },
+    { projectCode: "TYR-NPD-0003", name: "EV-Optimised TBR Tyre Range", stage: NpdStage.DISCOVERY, fgCode: null, description: "Develop truck-bus-radial tyre optimised for electric truck axle loads and torque profiles.", containerCode: "TYRE-CORE" },
+    // PAINT-CORE projects
+    { projectCode: "PNT-NPD-0001", name: "Zero-VOC Premium Interior Emulsion", stage: NpdStage.VALIDATION, fgCode: "PNT-FG-0001" as string | null, description: "Reformulate interior emulsion to achieve zero-VOC certification (<5 g/L) while maintaining washability grade A.", containerCode: "PAINT-CORE" },
+    { projectCode: "PNT-NPD-0002", name: "Graphene-Enhanced Anti-Corrosion Primer", stage: NpdStage.DEVELOPMENT, fgCode: "PNT-FG-0002" as string | null, description: "Incorporate graphene nanoplatelets into red oxide primer to improve salt-spray resistance to 1000 hours.", containerCode: "PAINT-CORE" },
+    { projectCode: "PNT-NPD-0003", name: "Photocatalytic Self-Cleaning Exterior Paint", stage: NpdStage.DISCOVERY, fgCode: null, description: "Develop TiO2-based photocatalytic coating that breaks down organic pollutants under UV exposure.", containerCode: "PAINT-CORE" }
+  ];
+
+  for (const def of npdDefs) {
+    const container = await prisma.productContainer.findUnique({ where: { code: def.containerCode } });
+    if (!container) continue;
+    const fgItem = def.fgCode ? await prisma.item.findFirst({ where: { itemCode: def.fgCode } }) : null;
+    const targetLaunchDate = new Date();
+    targetLaunchDate.setMonth(targetLaunchDate.getMonth() + 6);
+    await prisma.npdProject.upsert({
+      where: { projectCode: def.projectCode },
+      update: { name: def.name, description: def.description, stage: def.stage, status: NpdStatus.ACTIVE, containerId: container.id, fgItemId: fgItem?.id ?? null, projectLeadId: plmAdmin.id, targetLaunchDate },
+      create: { projectCode: def.projectCode, name: def.name, description: def.description, stage: def.stage, status: NpdStatus.ACTIVE, containerId: container.id, fgItemId: fgItem?.id ?? null, projectLeadId: plmAdmin.id, targetLaunchDate }
+    });
+  }
+  console.log(`Seeded ${npdDefs.length} NPD projects across all cores`);
+
   // Reset number sequences to be safe after seeding items/formulas directly with codes
   {
     const syncItemSeq = async (entity: string, prefix: string) => {
@@ -2781,7 +3130,55 @@ async function main() {
       update: { prefix: "FNB-RR-", padding: 4, next: 4 },
       create: { entity: `RELEASE_REQUEST_${foodContainer.id}`, prefix: "FNB-RR-", padding: 4, next: 4 }
     });
+
+    // ── CPG container-scoped number sequences ──────────────────────────────
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_FINISHED_GOOD_${cpgContainer.id}` }, update: { prefix: "CPG-FG-", padding: 4, next: 3 }, create: { entity: `ITEM_FINISHED_GOOD_${cpgContainer.id}`, prefix: "CPG-FG-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_${cpgContainer.id}` }, update: { prefix: "CPG-RM-", padding: 4, next: 11 }, create: { entity: `ITEM_${cpgContainer.id}`, prefix: "CPG-RM-", padding: 4, next: 11 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_PACKAGING_${cpgContainer.id}` }, update: { prefix: "CPG-PKG-", padding: 4, next: 4 }, create: { entity: `ITEM_PACKAGING_${cpgContainer.id}`, prefix: "CPG-PKG-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `FORMULA_${cpgContainer.id}` }, update: { prefix: "CPG-FML-", padding: 4, next: 3 }, create: { entity: `FORMULA_${cpgContainer.id}`, prefix: "CPG-FML-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `CHANGE_REQUEST_${cpgContainer.id}` }, update: { prefix: "CPG-CR-", padding: 4, next: 1 }, create: { entity: `CHANGE_REQUEST_${cpgContainer.id}`, prefix: "CPG-CR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `DOCUMENT_${cpgContainer.id}` }, update: { prefix: "CPG-DOC-", padding: 4, next: 4 }, create: { entity: `DOCUMENT_${cpgContainer.id}`, prefix: "CPG-DOC-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `RELEASE_REQUEST_${cpgContainer.id}` }, update: { prefix: "CPG-RR-", padding: 4, next: 1 }, create: { entity: `RELEASE_REQUEST_${cpgContainer.id}`, prefix: "CPG-RR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ARTWORK_${cpgContainer.id}` }, update: { prefix: "CPG-ART-", padding: 4, next: 1 }, create: { entity: `ARTWORK_${cpgContainer.id}`, prefix: "CPG-ART-", padding: 4, next: 1 } });
+
+    // ── CHEM container-scoped number sequences ──────────────────────────────
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_FINISHED_GOOD_${chemContainer.id}` }, update: { prefix: "CH-FG-", padding: 4, next: 3 }, create: { entity: `ITEM_FINISHED_GOOD_${chemContainer.id}`, prefix: "CH-FG-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_${chemContainer.id}` }, update: { prefix: "CH-RM-", padding: 4, next: 11 }, create: { entity: `ITEM_${chemContainer.id}`, prefix: "CH-RM-", padding: 4, next: 11 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_PACKAGING_${chemContainer.id}` }, update: { prefix: "CH-PKG-", padding: 4, next: 4 }, create: { entity: `ITEM_PACKAGING_${chemContainer.id}`, prefix: "CH-PKG-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `FORMULA_${chemContainer.id}` }, update: { prefix: "CH-FML-", padding: 4, next: 3 }, create: { entity: `FORMULA_${chemContainer.id}`, prefix: "CH-FML-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `CHANGE_REQUEST_${chemContainer.id}` }, update: { prefix: "CH-CR-", padding: 4, next: 1 }, create: { entity: `CHANGE_REQUEST_${chemContainer.id}`, prefix: "CH-CR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `DOCUMENT_${chemContainer.id}` }, update: { prefix: "CH-DOC-", padding: 4, next: 4 }, create: { entity: `DOCUMENT_${chemContainer.id}`, prefix: "CH-DOC-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `RELEASE_REQUEST_${chemContainer.id}` }, update: { prefix: "CH-RR-", padding: 4, next: 1 }, create: { entity: `RELEASE_REQUEST_${chemContainer.id}`, prefix: "CH-RR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ARTWORK_${chemContainer.id}` }, update: { prefix: "CH-ART-", padding: 4, next: 1 }, create: { entity: `ARTWORK_${chemContainer.id}`, prefix: "CH-ART-", padding: 4, next: 1 } });
+
+    // ── TYRE container-scoped number sequences ──────────────────────────────
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_FINISHED_GOOD_${tyreContainer.id}` }, update: { prefix: "TYR-FG-", padding: 4, next: 3 }, create: { entity: `ITEM_FINISHED_GOOD_${tyreContainer.id}`, prefix: "TYR-FG-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_${tyreContainer.id}` }, update: { prefix: "TYR-RM-", padding: 4, next: 11 }, create: { entity: `ITEM_${tyreContainer.id}`, prefix: "TYR-RM-", padding: 4, next: 11 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_PACKAGING_${tyreContainer.id}` }, update: { prefix: "TYR-PKG-", padding: 4, next: 4 }, create: { entity: `ITEM_PACKAGING_${tyreContainer.id}`, prefix: "TYR-PKG-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `FORMULA_${tyreContainer.id}` }, update: { prefix: "TYR-FML-", padding: 4, next: 3 }, create: { entity: `FORMULA_${tyreContainer.id}`, prefix: "TYR-FML-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `CHANGE_REQUEST_${tyreContainer.id}` }, update: { prefix: "TYR-CR-", padding: 4, next: 1 }, create: { entity: `CHANGE_REQUEST_${tyreContainer.id}`, prefix: "TYR-CR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `DOCUMENT_${tyreContainer.id}` }, update: { prefix: "TYR-DOC-", padding: 4, next: 4 }, create: { entity: `DOCUMENT_${tyreContainer.id}`, prefix: "TYR-DOC-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `RELEASE_REQUEST_${tyreContainer.id}` }, update: { prefix: "TYR-RR-", padding: 4, next: 1 }, create: { entity: `RELEASE_REQUEST_${tyreContainer.id}`, prefix: "TYR-RR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ARTWORK_${tyreContainer.id}` }, update: { prefix: "TYR-ART-", padding: 4, next: 1 }, create: { entity: `ARTWORK_${tyreContainer.id}`, prefix: "TYR-ART-", padding: 4, next: 1 } });
+
+    // ── PAINT container-scoped number sequences ──────────────────────────────
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_FINISHED_GOOD_${paintContainer.id}` }, update: { prefix: "PNT-FG-", padding: 4, next: 3 }, create: { entity: `ITEM_FINISHED_GOOD_${paintContainer.id}`, prefix: "PNT-FG-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_${paintContainer.id}` }, update: { prefix: "PNT-RM-", padding: 4, next: 11 }, create: { entity: `ITEM_${paintContainer.id}`, prefix: "PNT-RM-", padding: 4, next: 11 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ITEM_PACKAGING_${paintContainer.id}` }, update: { prefix: "PNT-PKG-", padding: 4, next: 4 }, create: { entity: `ITEM_PACKAGING_${paintContainer.id}`, prefix: "PNT-PKG-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `FORMULA_${paintContainer.id}` }, update: { prefix: "PNT-FML-", padding: 4, next: 3 }, create: { entity: `FORMULA_${paintContainer.id}`, prefix: "PNT-FML-", padding: 4, next: 3 } });
+    await prisma.numberSequence.upsert({ where: { entity: `CHANGE_REQUEST_${paintContainer.id}` }, update: { prefix: "PNT-CR-", padding: 4, next: 1 }, create: { entity: `CHANGE_REQUEST_${paintContainer.id}`, prefix: "PNT-CR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `DOCUMENT_${paintContainer.id}` }, update: { prefix: "PNT-DOC-", padding: 4, next: 4 }, create: { entity: `DOCUMENT_${paintContainer.id}`, prefix: "PNT-DOC-", padding: 4, next: 4 } });
+    await prisma.numberSequence.upsert({ where: { entity: `RELEASE_REQUEST_${paintContainer.id}` }, update: { prefix: "PNT-RR-", padding: 4, next: 1 }, create: { entity: `RELEASE_REQUEST_${paintContainer.id}`, prefix: "PNT-RR-", padding: 4, next: 1 } });
+    await prisma.numberSequence.upsert({ where: { entity: `ARTWORK_${paintContainer.id}` }, update: { prefix: "PNT-ART-", padding: 4, next: 1 }, create: { entity: `ARTWORK_${paintContainer.id}`, prefix: "PNT-ART-", padding: 4, next: 1 } });
   }
+
+  // ─── Seed real PDF documents for all cores ────────────────────────────────
+  console.log("Seeding documents (generating PDFs)...");
+  await seedDocuments(
+    prisma,
+    { foodContainer, polymerContainer, cpgContainer, chemContainer, tyreContainer, paintContainer },
+    plmAdmin.id
+  );
 
   console.log("Seed complete");
 }
