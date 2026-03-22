@@ -136,7 +136,7 @@ export function AboutPage() {
           <Stat value="10+" label="Integrated Modules" />
           <Stat value="6" label="ERP Connectors" />
           <Stat value="3" label="Label Standards" />
-          <Stat value="$0" label="Vendor Fees. Ever." accent />
+          <Stat value="Free" label="Implementation Included" accent />
         </div>
 
         {/* ── Made in India story ── */}
@@ -159,13 +159,13 @@ export function AboutPage() {
               actually work.
             </p>
             <p>
-              So we built one. Open-source. Self-hosted. Deployable in under 10 minutes. Yours forever,
-              with no cloud fees, no vendor relationship, and no lock-in. Formula management,
-              stage-gate NPD, regulatory labeling, change control, ERP integration — unified in a
-              single platform purpose-built for process industries.
+              So we built one. Seat-based pricing. No proprietary database fees — Tatva runs on PostgreSQL,
+              the world's most trusted open standard. Your data lives on your infrastructure, fully portable,
+              fully yours. Formula management, stage-gate NPD, regulatory labeling, change control, ERP
+              integration — unified in a single platform purpose-built for process industries.
             </p>
             <p className="font-medium text-slate-700">
-              Open-source. Self-hosted. No vendor lock-in. Yours forever. 🇮🇳
+              Transparent pricing. Free implementation. No lock-in. Yours forever. 🇮🇳
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export function AboutPage() {
         {/* ── Platform modules ── */}
         <div>
           <h2 className="mb-2 text-lg font-bold text-slate-900">Platform Modules</h2>
-          <p className="mb-6 text-sm text-slate-500">12 integrated modules — all in one self-hosted deployment.</p>
+          <p className="mb-6 text-sm text-slate-500">12 integrated modules — all included in every seat, no per-module unlocks.</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <ModuleRow icon={Package} name="Control Tower" desc="Real-time portfolio dashboard with KPIs, charts, and bottleneck visibility." />
             <ModuleRow icon={Package} name="Formula Management" desc="Multi-level versioned formulas with approval workflows and batch scaling." />
@@ -224,7 +224,7 @@ export function AboutPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <h2 className="mb-2 text-lg font-bold text-slate-900">Technology Stack</h2>
           <p className="mb-5 text-sm text-slate-500">
-            Built on a modern, open-source stack. No proprietary runtime, no cloud dependency.
+            Built on a modern, industry-standard stack. No proprietary database fees. No cloud lock-in.
           </p>
           <div className="mb-6 grid gap-4 sm:grid-cols-2">
             {[
@@ -246,46 +246,38 @@ export function AboutPage() {
           </div>
         </div>
 
-        {/* ── Self-hosting ── */}
+        {/* ── Pricing ── */}
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="mb-2 text-lg font-bold text-slate-900">Deploy in 3 Commands</h2>
+          <h2 className="mb-2 text-lg font-bold text-slate-900">Transparent Pricing</h2>
           <p className="mb-6 text-sm text-slate-500">
-            No cloud. No SaaS fees. No vendor relationship. Your server, your data, your platform — forever.
+            Pay per seat. All 12 modules included. Free implementation on every plan. No proprietary database fees — ever.
           </p>
           <div className="grid gap-4 sm:grid-cols-3">
             {[
-              { n: "1", title: "Clone & Configure", desc: "Clone the repo and copy the .env.production file. Set your database password and JWT secret." },
-              { n: "2", title: "Docker Compose Up", desc: "One command starts the full stack — Nginx, React SPA, Express API, PostgreSQL, and Redis." },
-              { n: "3", title: "Seed Demo Data", desc: "Optionally load realistic demo data to explore formulas, NPD, changes, and labels." },
-            ].map(s => (
-              <div key={s.n} className="rounded-xl border border-slate-100 bg-slate-50 p-5">
-                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white">
-                  {s.n}
-                </div>
-                <div className="mb-1 text-sm font-semibold text-slate-800">{s.title}</div>
-                <div className="text-xs text-slate-500 leading-relaxed">{s.desc}</div>
+              { tier: "Starter", price: "₹999", period: "/seat/mo", note: "Up to 10 seats", highlight: false,
+                features: ["All 12 modules", "Free implementation", "Community support"] },
+              { tier: "Professional", price: "₹1,999", period: "/seat/mo", note: "11–100 seats", highlight: true,
+                features: ["Everything in Starter", "Dedicated implementation", "Priority support & SLA"] },
+              { tier: "Enterprise", price: "Custom", period: "", note: "100+ seats", highlight: false,
+                features: ["Everything in Professional", "White-label & SSO", "On-site training & 24×7 SLA"] },
+            ].map(p => (
+              <div key={p.tier} className={`rounded-xl border p-5 ${p.highlight ? "border-orange-400 bg-orange-50 ring-1 ring-orange-200" : "border-slate-100 bg-slate-50"}`}>
+                <div className="mb-1 text-xs font-bold uppercase tracking-widest text-orange-500">{p.tier}</div>
+                <div className="mb-0.5 text-2xl font-bold text-slate-900">{p.price}<span className="text-sm font-normal text-slate-400">{p.period}</span></div>
+                <div className="mb-4 text-xs text-slate-400">{p.note}</div>
+                <ul className="space-y-1.5">
+                  {p.features.map(f => (
+                    <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                      <span className="mt-0.5 text-orange-500 font-bold">✓</span>{f}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
-          <div className="mt-6 overflow-hidden rounded-xl bg-slate-900">
-            <div className="flex items-center gap-2 border-b border-slate-700 bg-slate-800 px-4 py-3">
-              <div className="h-3 w-3 rounded-full bg-red-400" />
-              <div className="h-3 w-3 rounded-full bg-yellow-400" />
-              <div className="h-3 w-3 rounded-full bg-green-400" />
-              <span className="ml-2 text-xs text-slate-500">Terminal</span>
-            </div>
-            <pre className="overflow-x-auto p-5 text-xs leading-relaxed text-slate-300">
-              <span className="text-slate-500"># Clone the repository</span>{"\n"}
-              <span className="text-sky-400">git clone</span>{" "}https://github.com/PraveenSampathPLM/TatvaPLM.git{"\n\n"}
-              <span className="text-slate-500"># Configure environment</span>{"\n"}
-              <span className="text-sky-400">cp</span>{" "}.env.production.example .env.production{"\n\n"}
-              <span className="text-slate-500"># Launch full stack</span>{"\n"}
-              <span className="text-sky-400">docker compose</span>{" "}<span className="text-yellow-400">-f</span>{" "}docker-compose.prod.yml{" "}
-              <span className="text-yellow-400">--env-file</span>{" "}.env.production{" "}
-              <span className="text-sky-400">up -d --build</span>{"\n\n"}
-              <span className="text-green-400"># ✓ Open http://localhost — Tatva is live.</span>
-            </pre>
-          </div>
+          <p className="mt-6 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3 text-xs leading-relaxed text-slate-500">
+            <strong className="text-slate-700">No database license fees.</strong> Tatva runs on PostgreSQL — fully portable, fully yours. All pricing in INR; USD/EUR equivalents available. Volume discounts available for 25+ seats.
+          </p>
         </div>
 
         {/* ── Footer links ── */}
@@ -305,7 +297,7 @@ export function AboutPage() {
           <span className="text-slate-300">·</span>
           <span>Built with ❤️ in India 🇮🇳</span>
           <span className="text-slate-300">·</span>
-          <span>Non-commercial open-source licence</span>
+          <span>Transparent seat-based pricing</span>
         </div>
 
       </div>
