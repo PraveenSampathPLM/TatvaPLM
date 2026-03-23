@@ -438,9 +438,26 @@ export function DocumentsPage(): JSX.Element {
                   </button>
                 </td>
                 <td className="py-2">
-                  <a href={`/api/documents/${doc.id}/download`} className="rounded border border-slate-300 px-2 py-1 text-xs">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await api.get(`/documents/${doc.id}/download`, { responseType: "blob" });
+                        const url = URL.createObjectURL(new Blob([res.data]));
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = doc.fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                      } catch {
+                        toast.error("Download failed");
+                      }
+                    }}
+                    className="rounded border border-slate-300 px-2 py-1 text-xs"
+                  >
                     Download
-                  </a>
+                  </button>
                 </td>
               </tr>
             ))}

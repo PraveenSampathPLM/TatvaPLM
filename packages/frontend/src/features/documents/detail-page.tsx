@@ -271,12 +271,26 @@ export function DocumentDetailPage(): JSX.Element {
             <p className="font-mono text-xs text-slate-600">{doc.fileName}</p>
             <p className="text-xs text-slate-400">{(doc.fileSize / 1024).toFixed(1)} KB · {doc.mimeType}</p>
           </div>
-          <a
-            href={`/api/documents/${documentId}/download`}
+          <button
+            onClick={async () => {
+              try {
+                const res = await api.get(`/documents/${documentId}/download`, { responseType: "blob" });
+                const url = URL.createObjectURL(new Blob([res.data]));
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = doc.fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              } catch {
+                toast.error("Download failed");
+              }
+            }}
             className="rounded border border-slate-300 bg-white px-3 py-1 text-xs hover:bg-slate-50"
           >
             ↓ Download
-          </a>
+          </button>
         </div>
       </div>
 

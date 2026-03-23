@@ -9,13 +9,15 @@ import {
   LifecycleStatus,
   ChangeStatus,
   NpdStage,
-  NpdStatus
+  NpdStatus,
+  GateDecision
 } from "@prisma/client";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import { seedDocuments } from "./seed-documents.js";
+import { seedStageGateTemplates } from "./seed-npd-templates.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -3065,6 +3067,66 @@ async function main() {
   }
   console.log(`Seeded ${npdDefs.length} NPD projects across all cores`);
 
+  // ═══════════════════════════════════════════════════════════════
+  // GATE REVIEWS — complete past stages for seeded NPD projects
+  // ═══════════════════════════════════════════════════════════════
+  console.log("Seeding gate reviews for completed stages...");
+  const STAGE_ORDER = [NpdStage.DISCOVERY, NpdStage.FEASIBILITY, NpdStage.DEVELOPMENT, NpdStage.VALIDATION, NpdStage.LAUNCH];
+
+  // Generic criteria used for all gates (will be checked = true / scored)
+  const makeMusts = (gate: NpdStage) => {
+    const criteriaMap: Record<NpdStage, string[]> = {
+      DISCOVERY:   ["Market opportunity validated", "Regulatory feasibility confirmed", "IP landscape reviewed", "Business case approved"],
+      FEASIBILITY: ["Technical feasibility confirmed", "Supply chain feasibility assessed", "Regulatory pathway defined", "Cost model validated"],
+      DEVELOPMENT: ["Formula / product specification locked", "Scale-up trials completed", "Stability / shelf-life data available", "Packaging design finalised"],
+      VALIDATION:  ["Consumer validation passed", "Regulatory submission filed", "Manufacturing SOP approved", "Commercial readiness confirmed"],
+      LAUNCH:      ["First commercial batch released", "Distribution network ready", "Marketing material approved", "Post-launch monitoring plan active"]
+    };
+    return (criteriaMap[gate] ?? []).map((text) => ({ text, checked: true }));
+  };
+  const makeShoulds = (gate: NpdStage) => {
+    const criteriaMap: Record<NpdStage, string[]> = {
+      DISCOVERY:   ["Competitive benchmark completed", "Consumer insight research done"],
+      FEASIBILITY: ["Green chemistry options evaluated", "Sustainability impact assessed"],
+      DEVELOPMENT: ["Process optimisation completed", "Yield ≥ 95% achieved"],
+      VALIDATION:  ["Customer pilot feedback positive", "Shelf placement confirmed"],
+      LAUNCH:      ["Retail sell-through > 80% in month 1", "No major customer complaints"]
+    };
+    return (criteriaMap[gate] ?? []).map((text, i) => ({ text, score: i === 0 ? 5 : 4, maxScore: 5 }));
+  };
+
+  let gateReviewCount = 0;
+  for (const def of npdDefs) {
+    const project = await prisma.npdProject.findUnique({ where: { projectCode: def.projectCode } });
+    if (!project) continue;
+    const currentIdx = STAGE_ORDER.indexOf(def.stage);
+    // Seed GO reviews for all stages that have been completed (i.e., stages BEFORE the current one)
+    for (let i = 0; i < currentIdx; i++) {
+      const gate = STAGE_ORDER[i];
+      const exists = await prisma.gateReview.findFirst({ where: { npdProjectId: project.id, gate } });
+      if (!exists) {
+        const daysAgo = (currentIdx - i) * 30; // earlier stages reviewed further in the past
+        const reviewedAt = new Date();
+        reviewedAt.setDate(reviewedAt.getDate() - daysAgo);
+        await prisma.gateReview.create({
+          data: {
+            npdProjectId: project.id,
+            gate,
+            decision: GateDecision.GO,
+            mustMeetCriteria: makeMusts(gate),
+            shouldMeetCriteria: makeShoulds(gate),
+            overallScore: 82 + Math.round(Math.random() * 15), // 82–97
+            comments: `Gate ${gate} review completed. All must-meet criteria satisfied. Decision: GO.`,
+            reviewedById: plmAdmin.id,
+            reviewedAt
+          }
+        });
+        gateReviewCount++;
+      }
+    }
+  }
+  console.log(`Seeded ${gateReviewCount} gate reviews`);
+
   // Reset number sequences to be safe after seeding items/formulas directly with codes
   {
     const syncItemSeq = async (entity: string, prefix: string) => {
@@ -3171,6 +3233,10 @@ async function main() {
     await prisma.numberSequence.upsert({ where: { entity: `RELEASE_REQUEST_${paintContainer.id}` }, update: { prefix: "PNT-RR-", padding: 4, next: 1 }, create: { entity: `RELEASE_REQUEST_${paintContainer.id}`, prefix: "PNT-RR-", padding: 4, next: 1 } });
     await prisma.numberSequence.upsert({ where: { entity: `ARTWORK_${paintContainer.id}` }, update: { prefix: "PNT-ART-", padding: 4, next: 1 }, create: { entity: `ARTWORK_${paintContainer.id}`, prefix: "PNT-ART-", padding: 4, next: 1 } });
   }
+
+  // ─── Seed stage-gate templates for all 6 industries ──────────────────────
+  console.log("Seeding stage-gate templates...");
+  await seedStageGateTemplates(prisma);
 
   // ─── Seed real PDF documents for all cores ────────────────────────────────
   console.log("Seeding documents (generating PDFs)...");

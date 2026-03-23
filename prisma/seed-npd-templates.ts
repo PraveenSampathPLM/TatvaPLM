@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import type { PrismaClient } from "@prisma/client";
 
 const templates = [
   // ═══════════════════════════════════════════════════════════════════════
@@ -302,7 +301,7 @@ const templates = [
       { id: "d2", label: "Finished Good Item Created", type: "ITEM", required: true },
       { id: "d3", label: "Stability Study Report (3-month accelerated)", type: "DOCUMENT", required: true },
       { id: "d4", label: "Preservative Efficacy Test (ISO 11930)", type: "DOCUMENT", required: true },
-      { id: "d5", label: "Safety Assessment / CPSR (EU)", type: "DOCUMENT", required: true },
+      { id: "d5", label: "Safety Assessment / CPSR", type: "DOCUMENT", required: true },
       { id: "d6", label: "Dermatology / Allergy Test Report", type: "DOCUMENT", required: false },
       { id: "d7", label: "Packaging Compatibility Test", type: "DOCUMENT", required: true },
       { id: "d8", label: "Artwork Brief & Claims Review", type: "DOCUMENT", required: false }
@@ -317,7 +316,7 @@ const templates = [
       { id: "s1", criterion: "Sensory panel score > 75%", weight: 3 },
       { id: "s2", criterion: "Dermatologist-tested and claimed", weight: 2 },
       { id: "s3", criterion: "pH, viscosity, appearance stable across batches", weight: 3 },
-      { id: "s4", criterion: "Fill weight / volume within ±2% tolerance", weight: 2 }
+      { id: "s4", criterion: "Fill weight / volume within +/-2% tolerance", weight: 2 }
     ]
   },
   {
@@ -438,7 +437,7 @@ const templates = [
     ],
     shouldMeetCriteria: [
       { id: "s1", criterion: "Customer trial success rate > 80%", weight: 3 },
-      { id: "s2", criterion: "Hazard classification < acute tox cat 3", weight: 2 },
+      { id: "s2", criterion: "Hazard classification below acute tox cat 3", weight: 2 },
       { id: "s3", criterion: "Batch-to-batch reproducibility (CV < 3%)", weight: 3 },
       { id: "s4", criterion: "Compatible with standard chemical packaging (HDPE drum)", weight: 1 }
     ]
@@ -514,7 +513,7 @@ const templates = [
     shouldMeetCriteria: [
       { id: "s1", criterion: "EU Label minimum class B/B targeted", weight: 3 },
       { id: "s2", criterion: "Target market volume > 100,000 units/year", weight: 3 },
-      { id: "s3", criterion: "Silica technology considered for low RR", weight: 2 },
+      { id: "s3", criterion: "Silica technology considered for low rolling resistance", weight: 2 },
       { id: "s4", criterion: "REACH SVHC and PAH limits considered from outset", weight: 2 }
     ]
   },
@@ -531,12 +530,12 @@ const templates = [
     mustMeetCriteria: [
       { id: "m1", criterion: "Compound formulation processable on existing mixing equipment" },
       { id: "m2", criterion: "Cure system selected with no nitrosamine-forming accelerators" },
-      { id: "m3", criterion: "No PAH oils > 1 mg/kg (REACH SVHC limit)" },
+      { id: "m3", criterion: "No PAH oils above 1 mg/kg (REACH SVHC limit)" },
       { id: "m4", criterion: "Preliminary Mooney viscosity within processable range" }
     ],
     shouldMeetCriteria: [
       { id: "s1", criterion: "Silica-based tread for low rolling resistance", weight: 3 },
-      { id: "s2", criterion: "Stearic acid and zinc oxide optimised for cure efficiency", weight: 2 },
+      { id: "s2", criterion: "Zinc oxide optimised for cure efficiency", weight: 2 },
       { id: "s3", criterion: "Compound mixing time feasible on existing Banbury mixer", weight: 2 },
       { id: "s4", criterion: "Natural rubber bio-based content maximised", weight: 1 }
     ]
@@ -547,9 +546,9 @@ const templates = [
     deliverables: [
       { id: "d1", label: "Approved Compound Formula (v1.0)", type: "FORMULA", required: true },
       { id: "d2", label: "Finished Good Tyre Item Created", type: "ITEM", required: true },
-      { id: "d3", label: "Vulcanisation Curve (MDR / RPA)", type: "DOCUMENT", required: true },
+      { id: "d3", label: "Vulcanisation Cure Curve (MDR / RPA)", type: "DOCUMENT", required: true },
       { id: "d4", label: "Physical Property Test Report (Tensile / Hardness / Abrasion)", type: "DOCUMENT", required: true },
-      { id: "d5", label: "DMA / Tan Delta Profile (RR and WG prediction)", type: "DOCUMENT", required: true },
+      { id: "d5", label: "DMA Tan Delta Profile (RR and WG prediction)", type: "DOCUMENT", required: true },
       { id: "d6", label: "Pilot Tyre Build and Wheel Test Report", type: "DOCUMENT", required: true },
       { id: "d7", label: "SDS for Compound", type: "DOCUMENT", required: true }
     ],
@@ -652,7 +651,7 @@ const templates = [
       { id: "d5", label: "Biocide Selection (BPR compliant)", type: "DOCUMENT", required: false }
     ],
     mustMeetCriteria: [
-      { id: "m1", criterion: "Formulation VOC < category limit (EU Directive 2004/42)" },
+      { id: "m1", criterion: "Formulation VOC below category limit (EU Directive 2004/42)" },
       { id: "m2", criterion: "Binder selected for target substrate and durability" },
       { id: "m3", criterion: "No restricted biocides or carcinogenic pigments" },
       { id: "m4", criterion: "PVC (pigment volume concentration) optimised for opacity" }
@@ -660,7 +659,7 @@ const templates = [
     shouldMeetCriteria: [
       { id: "s1", criterion: "VOC < 30 g/L (EU Ecolabel threshold)", weight: 3 },
       { id: "s2", criterion: "TiO2 content optimised to < 15% via extender use", weight: 2 },
-      { id: "s3", criterion: "Wet paint density within 1.2–1.5 kg/L", weight: 2 },
+      { id: "s3", criterion: "Wet paint density within 1.2-1.5 kg/L", weight: 2 },
       { id: "s4", criterion: "Water-based system (no aromatic solvents)", weight: 2 }
     ]
   },
@@ -672,20 +671,20 @@ const templates = [
       { id: "d2", label: "Finished Good Item Created", type: "ITEM", required: true },
       { id: "d3", label: "Lab Paint Test Report (contrast ratio, viscosity, drying)", type: "DOCUMENT", required: true },
       { id: "d4", label: "Scrub Resistance Report (ISO 11998)", type: "DOCUMENT", required: true },
-      { id: "d5", label: "Outdoor Weathering / Accelerated Weathering Initiated", type: "DOCUMENT", required: false },
+      { id: "d5", label: "Outdoor / Accelerated Weathering Study Initiated", type: "DOCUMENT", required: false },
       { id: "d6", label: "Tinting System Compatibility Test (if applicable)", type: "DOCUMENT", required: false },
       { id: "d7", label: "SDS and REACH Compliance Declaration", type: "DOCUMENT", required: true }
     ],
     mustMeetCriteria: [
       { id: "m1", criterion: "Contrast ratio >= 0.97 at 100 micron DFT" },
       { id: "m2", criterion: "Scrub resistance passes ISO 11998 Class 1 or 2" },
-      { id: "m3", criterion: "Drying time (touch dry) < 30 min at 23°C" },
+      { id: "m3", criterion: "Drying time (touch dry) < 30 min at 23 degrees C" },
       { id: "m4", criterion: "SDS compliant with REACH Annex II" }
     ],
     shouldMeetCriteria: [
       { id: "s1", criterion: "Spreading rate > 10 m2/L per coat", weight: 3 },
-      { id: "s2", criterion: "pH 8.5–9.5 (for waterborne)", weight: 2 },
-      { id: "s3", criterion: "KU viscosity stable after 3-month storage at 50°C", weight: 3 },
+      { id: "s2", criterion: "pH 8.5-9.5 (for waterborne)", weight: 2 },
+      { id: "s3", criterion: "KU viscosity stable after 3-month storage at 50 degrees C", weight: 3 },
       { id: "s4", criterion: "Colour strength (tinting response) meets tolerance", weight: 2 }
     ]
   },
@@ -703,7 +702,7 @@ const templates = [
     ],
     mustMeetCriteria: [
       { id: "m1", criterion: "3 production batches pass full in-process and finished paint QC" },
-      { id: "m2", criterion: "VOC verified by independent lab < category limit" },
+      { id: "m2", criterion: "VOC verified by independent lab below category limit" },
       { id: "m3", criterion: "6-month storage stability confirmed (no settling, skinning)" },
       { id: "m4", criterion: "Label conforms to GHS, BIS and applicable regional regulations" },
       { id: "m5", criterion: "Colour standard established and archived" }
@@ -741,7 +740,7 @@ const templates = [
   }
 ];
 
-async function main() {
+export async function seedStageGateTemplates(prisma: PrismaClient) {
   for (const template of templates) {
     await prisma.stageGateTemplate.upsert({
       where: { industry_stage: { industry: template.industry, stage: template.stage } },
@@ -753,7 +752,5 @@ async function main() {
       create: template
     });
   }
-  console.log(`Stage gate templates seeded: ${templates.length} templates across ${new Set(templates.map(t => t.industry)).size} industries.`);
+  console.log(`  ✓ ${templates.length} stage-gate templates seeded across ${new Set(templates.map(t => t.industry)).size} industries`);
 }
-
-main().catch(console.error).finally(() => prisma.$disconnect());
